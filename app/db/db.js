@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setup = void 0;
+exports.dbSetup = void 0;
 const sqlite_electron_1 = require("sqlite-electron");
 const createScript = `CREATE TABLE IF NOT EXISTS playlist (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, created INTEGER);`;
-function setup() {
+function dbSetup() {
     (0, sqlite_electron_1.setdbPath)('db.sqlite').then(() => {
         console.log("set database path");
     }).catch(err => {
@@ -18,5 +18,5 @@ function setup() {
     //     console.log("created db structure");
     // });
 }
-exports.setup = setup;
+exports.dbSetup = dbSetup;
 //# sourceMappingURL=db.js.map

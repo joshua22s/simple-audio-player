@@ -3,7 +3,7 @@ import { setdbPath, executeScript, executeQuery } from 'sqlite-electron';
 const createScript =
     `CREATE TABLE IF NOT EXISTS playlist (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, created INTEGER);`;
 
-export function setup() {
+export function dbSetup() {
     setdbPath('db.sqlite').then(() => {
         console.log("set database path");
     }).catch(err => {

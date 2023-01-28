@@ -1,7 +1,8 @@
-import { File } from "./file";
+import { Song } from "./song";
 
 export class Playlist {
     id: number;
     name: string;
-    files: File[];
+    songs: Song[];
+    lastPlayed: number;
 }

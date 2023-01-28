@@ -2,8 +2,8 @@ import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { setupTitlebar, attachTitlebarToWindow } from "custom-electron-titlebar/main";
-import { setup } from './db/db';
-
+import { dbSetup } from './db/db';
+import { filesHandlerSetup } from './fileshandler/fileshandler';
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
@@ -32,7 +32,8 @@ function createWindow(): BrowserWindow {
 
   win.webContents.openDevTools();
   attachTitlebarToWindow(win);
-  setup();
+  dbSetup();
+  filesHandlerSetup(win);
 
   if (serve) {
     const debug = require('electron-debug');
