@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.filesHandlerSetup = void 0;
 const electron_1 = require("electron");
+const get_audio_duration_1 = require("get-audio-duration");
 var mainWindow;
 function filesHandlerSetup(window) {
     mainWindow = window;
@@ -15,9 +16,19 @@ electron_1.ipcMain.on("open-files", (event, args) => {
         properties: ['openFile', 'multiSelections']
     });
     resp.then(res => {
-        console.log(res.filePaths);
         if (!res.canceled) {
-            mainWindow.webContents.send('open-files-change', res.filePaths);
+            var filepaths = res.filePaths;
+            var songs = [];
+            var promises = [];
+            for (let path of res.filePaths) {
+                promises.push((0, get_audio_duration_1.getAudioDurationInSeconds)(path));
+            }
+            Promise.all(promises).then(durations => {
+                for (var i = 0; i < durations.length; i++) {
+                    songs.push({ path: filepaths[i], duration: durations[i] });
+                }
+                mainWindow.webContents.send('open-files-change', songs);
+            });
         }
     });
 });

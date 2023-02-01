@@ -1,22 +1,77 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dbSetup = void 0;
-const sqlite_electron_1 = require("sqlite-electron");
-const createScript = `CREATE TABLE IF NOT EXISTS playlist (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, created INTEGER);`;
-function dbSetup() {
-    (0, sqlite_electron_1.setdbPath)('db.sqlite').then(() => {
-        console.log("set database path");
-    }).catch(err => {
-        console.log(err);
-    });
-    (0, sqlite_electron_1.executeQuery)("CREATE TABLE IF NOT EXISTS playlist (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, created INTEGER)").then(() => {
-    });
-    // executeScript('CREATE TABLE IF NOT EXISTS sqlite_main (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,NAME TEXT NOT NULL,AGE INT NOT NULL,ADDRESS CHAR(50) NOT NULL,SALARY REAL NOT NULL);').then(() => {
-    //     console.log("hej");
-    // });
-    // executeScript(createScript).then(() => {
-    //     console.log("created db structure");
-    // });
+const electron_1 = require("electron");
+const sqlite3_1 = require("sqlite3");
+const uuid_1 = require("uuid");
+const playlist_1 = require("../../src/app/models/playlist");
+const fs_1 = require("fs");
+const song_1 = require("../../src/app/models/song");
+var mainWindow;
+const db = new sqlite3_1.Database('db.sqlite');
+function dbSetup(window) {
+    mainWindow = window;
+    db.exec((0, fs_1.readFileSync)(`${__dirname}/script.sql`).toString());
 }
 exports.dbSetup = dbSetup;
+electron_1.ipcMain.on("playlist-get", (event, args) => {
+    db.get(`SELECT * FROM playlist WHERE id = ?`, [args], (err, row) => {
+        event.returnValue = convertRowToPlaylist(row);
+    });
+});
+electron_1.ipcMain.on("playlist-get-all", (event, args) => {
+    var playlists = [];
+    db.each("SELECT * FROM playlist", (err, row) => {
+        playlists.push(convertRowToPlaylist(row));
+    });
+    event.returnValue = playlists;
+});
+electron_1.ipcMain.on("playlist-create", (event, args) => {
+    var name = args;
+    var newId = (0, uuid_1.v4)().toString();
+    var newDate = new Date().getTime();
+    const statement = db.prepare("INSERT INTO playlist(id, name, created) VALUES(?,?,?)");
+    statement.run([newId, name, newDate], (resp, err) => {
+        db.get(`SELECT * FROM playlist WHERE id = ?`, [newId], (err, row) => {
+            event.returnValue = convertRowToPlaylist(row);
+        });
+    });
+});
+electron_1.ipcMain.on("songs-add", (event, args) => {
+    var promises = [];
+    for (let s of args.songs) {
+        promises.push(saveSong(s.path, s.name, s.duration, s.orderIndex, args.playlistId));
+    }
+    Promise.all(promises).then((songs) => {
+        event.returnValue = songs;
+    });
+});
+function saveSong(path, name, duration, orderIndex, playlistId) {
+    return new Promise((resolve, reject) => {
+        var newId = (0, uuid_1.v4)().toString();
+        let statement = db.prepare("INSERT INTO song(id, name, path, duration, orderIndex, playlistId) VALUES(?,?,?,?,?,?)");
+        statement.run([newId, name, path, duration, orderIndex, playlistId], (resp, err) => {
+            db.get('SELECT * FROM song WHERE id = ?', [newId], (err, row) => {
+                resolve(convertRowToSong(row));
+            });
+        });
+    });
+}
+function convertRowToPlaylist(row) {
+    var p = new playlist_1.Playlist();
+    p.id = row.id;
+    p.name = row.name;
+    p.created = row.created;
+    p.songs = [];
+    return p;
+}
+function convertRowToSong(row) {
+    var s = new song_1.Song();
+    s.id = row.id;
+    s.name = row.name;
+    s.path = row.path;
+    s.duration = row.duration;
+    s.orderIndex = row.orderIndex;
+    return s;
+}
 //# sourceMappingURL=db.js.map

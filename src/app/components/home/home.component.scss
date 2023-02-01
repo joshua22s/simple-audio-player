@@ -1,6 +1,7 @@
 .main-nav {
     display: flex;
     height: 60px;
+
     button {
         // font-size: 12px;
         width: 90px;
@@ -29,13 +30,4 @@
     flex-direction: column;
     width: 100vw;
     height: calc(100vh - 90px);
-
-    .player-wrapper {
-        min-height: 200px;
-        background-color: rgba(0, 0, 0, 0.311);
-    }
-
-    .playlist-wrapper {
-        flex: 1;
-    }
 }

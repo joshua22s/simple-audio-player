@@ -1,0 +1,28 @@
+.back-button {
+    width: fit-content;
+    // height: 25px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px 10px 10px;
+
+    * {
+        margin: 10px;
+    }
+
+    transition: 100ms all ease-in-out;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: rgba(0, 0, 0, 0.238);
+}
+
+.page-wrapper {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 80px;
+}

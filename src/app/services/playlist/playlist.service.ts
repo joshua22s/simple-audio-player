@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Song } from '../../models/song';
 import { IpcService } from '../ipc/ipc.service';
 
 @Injectable({
@@ -15,5 +16,21 @@ export class PlaylistService {
         resolve(args);
       });
     })
+  }
+
+  getPlaylist(id: string) {
+    return this.ipcService.sendSync("playlist-get", id);
+  }
+
+  getPlaylists() {
+    return this.ipcService.sendSync("playlist-get-all");
+  }
+
+  createPlaylist(name: string) {
+    return this.ipcService.sendSync("playlist-create", name);
+  }
+
+  addSongs(songs: Song[], playlistId: string) {
+    return this.ipcService.sendSync("songs-add", { songs: songs, playlistId: playlistId });
   }
 }

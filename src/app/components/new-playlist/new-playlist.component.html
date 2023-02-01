@@ -1,0 +1,9 @@
+<div (click)="back()" class="back-button">
+    <span class="material-icons">arrow_back</span>
+    terug
+</div>
+<div class="page-wrapper">
+    <h1>Nieuwe afspeellijst</h1>
+    <app-input title="Naam" style="width: 260px;" [control]="playlistNameFormControl"></app-input>
+    <app-button style="margin-top: 10px;" (onclick)="create()" [disabled]="playlistNameFormControl.invalid" text="aanmaken"></app-button>
+</div>

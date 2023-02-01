@@ -1,5 +1,6 @@
 import { dialog, ipcMain } from 'electron';
-
+import { stat } from 'fs';
+import { getAudioDurationInSeconds } from 'get-audio-duration';
 var mainWindow;
 
 export function filesHandlerSetup(window: any) {
@@ -15,7 +16,18 @@ ipcMain.on("open-files", (event, args) => {
     });
     resp.then(res => {
         if (!res.canceled) {
-            mainWindow.webContents.send('open-files-change', res.filePaths);
+            var filepaths = res.filePaths;
+            var songs = [];
+            var promises = [];
+            for (let path of res.filePaths) {
+                promises.push(getAudioDurationInSeconds(path));
+            }
+            Promise.all(promises).then(durations => {
+                for (var i = 0; i < durations.length; i++) {
+                    songs.push({path: filepaths[i], duration: durations[i]});
+                }
+                mainWindow.webContents.send('open-files-change', songs);
+            })
         }
     });
-})
+});

@@ -1,0 +1,4 @@
+<div *ngIf="song" class="song-wrapper">
+    <span class="title">{{song.name}}</span>
+    <span class="duration">{{convertDurationToReadable(song.duration)}}</span>
+</div>

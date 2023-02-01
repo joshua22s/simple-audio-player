@@ -1,8 +1,9 @@
 import { Song } from "./song";
 
 export class Playlist {
-    id: number;
+    id: string;
     name: string;
     songs: Song[];
-    lastPlayed: number;
+    lastPlayed: Song;
+    created: number;
 }

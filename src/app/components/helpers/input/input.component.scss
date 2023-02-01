@@ -1,0 +1,28 @@
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .input {
+        background-color: white;
+        border: none;
+        height: 35px;
+        width: 100%;
+        border-radius: 4px;
+        transition: 150ms all ease-in-out;
+        box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    }
+
+    .input:focus {
+        outline: none !important;
+        border-color: #5A64B7;
+        transform: translate(0px, -1px);
+        box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+    }
+
+    .input-title {
+        transition: 150ms all ease-in-out;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+}
