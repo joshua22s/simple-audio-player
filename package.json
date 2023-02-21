@@ -45,6 +45,7 @@
     "lint": "ng lint"
   },
   "dependencies": {
+    "@angular/cdk": "14.2.7",
     "@angular/common": "14.2.6",
     "@angular/compiler": "14.2.6",
     "@angular/core": "14.2.6",
@@ -53,6 +54,7 @@
     "@angular/platform-browser": "14.2.6",
     "@angular/platform-browser-dynamic": "14.2.6",
     "@angular/router": "14.2.6",
+    "@ctrl/ngx-rightclick": "4.0.0",
     "custom-electron-titlebar": "4.1.6",
     "get-audio-duration": "3.1.1",
     "material-icons": "1.13.1",

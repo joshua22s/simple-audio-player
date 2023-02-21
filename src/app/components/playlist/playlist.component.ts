@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Playlist } from '../../models/playlist';
 import { Song } from '../../models/song';
 import { PlaylistService } from '../../services/playlist/playlist.service';
@@ -8,13 +9,30 @@ import { PlaylistService } from '../../services/playlist/playlist.service';
   templateUrl: './playlist.component.html',
   styleUrls: ['./playlist.component.scss']
 })
-export class PlaylistComponent implements OnInit {
+export class PlaylistComponent implements OnInit, OnDestroy {
 
   @Input("playlist") playlist: Playlist;
+
+  selectedSong: Song = new Song();
+
+  private selectedSongSubscription: Subscription;
 
   constructor(private playlistService: PlaylistService) { }
 
   ngOnInit(): void {
+    this.selectedSongSubscription = this.playlistService.selectedSong.subscribe(song => {
+      this.selectedSong = song;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.selectedSongSubscription) {
+      this.selectedSongSubscription.unsubscribe();
+    }
+  }
+
+  selectSong(song: Song) {
+    this.playlistService.setSelectedSong(song);
   }
 
   public addSongs() {

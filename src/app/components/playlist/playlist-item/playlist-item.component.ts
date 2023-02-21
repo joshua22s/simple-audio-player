@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Song } from '../../../models/song';
+import { PlaylistItemRightClickMenuComponent } from './playlist-item-right-click-menu/playlist-item-right-click-menu.component';
 
 @Component({
   selector: 'app-playlist-item',
@@ -8,29 +9,34 @@ import { Song } from '../../../models/song';
 })
 export class PlaylistItemComponent implements OnInit {
 
+  menu = PlaylistItemRightClickMenuComponent;
+
   @Input("song") song: Song;
+  @Input("selected") selected: boolean = false;
 
   constructor() { }
 
   ngOnInit(): void {
-    console.log(this.song);
   }
 
   convertDurationToReadable(seconds: number): string {
-    // var numyears = Math.floor(seconds / 31536000);
-    // var numdays = Math.floor((seconds % 31536000) / 86400);
-    var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
-    var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
-    var numseconds = (((seconds % 31536000) % 86400) % 3600) % 60;
-    var returnString = "";
-    if (numhours) {
-      returnString += `${numhours}:`;
+    var hours = Math.round(Math.floor(seconds / 3600));
+    var minutes = Math.round(Math.floor((seconds - (hours * 3600)) / 60));
+    var seconds = Math.round(seconds - (hours * 3600) - (minutes * 60));
+    var hoursString = hours < 10 ? '0' + hours : hours;
+    var minutesString = minutes < 10 ? '0' + minutes : minutes;
+    var secondsString = seconds < 10 ? '0' + seconds : seconds;
+    if (!!hours) {
+      if (!!minutes) {
+        return `${hoursString}:${minutesString}:${secondsString}`
+      } else {
+        return `${hoursString}:${secondsString}`
+      }
     }
-    var secondsString = "";
-    if (numseconds < 10) {
-      secondsString += `0${numseconds}`;
+    if (!!minutes) {
+      return `${minutesString}:${secondsString}`
     }
-    return `${numminutes}:${secondsString}`;
+    return `00:${secondsString}`
   }
 
 }

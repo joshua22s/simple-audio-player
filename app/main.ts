@@ -23,6 +23,7 @@ function createWindow(): BrowserWindow {
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
+      webSecurity: false,
       allowRunningInsecureContent: (serve),
       contextIsolation: false,  // false if you want to run e2e test with Spectron,
       preload: path.join(__dirname, 'preload.js')

@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Playlist } from '../../models/playlist';
+import { PlaylistService } from '../../services/playlist/playlist.service';
 
 @Component({
   selector: 'app-open-playlist',
@@ -7,9 +10,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class OpenPlaylistComponent implements OnInit {
 
-  constructor() { }
+  playlists: Playlist[] = [];
+
+  constructor(private playlistService: PlaylistService, private router: Router) { }
 
   ngOnInit(): void {
+    this.getPlaylists();
+  }
+
+  getPlaylists() {
+    this.playlistService.getPlaylists().then(playlists => {
+      this.playlists = playlists as Playlist[];
+      this.playlists.sort((a,b) => a.created - b.created);
+    })
+  }
+
+  openPlaylist(playlist: Playlist) {
+    this.router.navigateByUrl(`playlists/${playlist.id}`);
   }
 
 }

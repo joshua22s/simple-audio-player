@@ -14,16 +14,44 @@ export function dbSetup(window: any) {
 
 ipcMain.on("playlist-get", (event, args) => {
     db.get(`SELECT * FROM playlist WHERE id = ?`, [args], (err: any, row: any) => {
-        event.returnValue = convertRowToPlaylist(row);
+        getPlaylistSongs(args).then(songs => {
+            var playlist = convertRowToPlaylist(row);
+            playlist.songs = songs;
+            mainWindow.webContents.send("playlist-get-send", playlist);
+        });
     });
 });
 
+function getPlaylistSongs(playlistId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        var songs = [];
+        db.each(`SELECT * FROM song WHERE playlistId = ?`, [playlistId], (err: any, row: any) => {
+            songs.push(convertRowToSong(row));
+        }, (err: any, count: number) => {
+            resolve(songs);
+        });
+    });
+}
+
 ipcMain.on("playlist-get-all", (event, args) => {
+    var promises = [];
     var playlists = [];
     db.each("SELECT * FROM playlist", (err: any, row: any) => {
+        // console.log("hello");
+        // console.log(row);
+        // promises.push(new Promise((res, rej) => {
+        //     res(convertRowToPlaylist(row));
+        // }));
         playlists.push(convertRowToPlaylist(row));
+    }, (err: any, count: number) => {
+        // console.log(playlists);
+        mainWindow.webContents.send('playlist-get-all-send', playlists);
     });
-    event.returnValue = playlists;
+    // Promise.all(promises).then(playlists => {
+    //     console.log("all playlists");
+    //     console.log(playlists);
+    //     mainWindow.webContents.send('playlist-get-all-send', playlists);
+    // })
 });
 
 ipcMain.on("playlist-create", (event, args) => {
@@ -64,6 +92,7 @@ function convertRowToPlaylist(row: any): Playlist {
     var p = new Playlist();
     p.id = row.id;
     p.name = row.name;
+    p.songs = row.songs;
     p.created = row.created;
     p.songs = [];
     return p

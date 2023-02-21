@@ -1,0 +1,57 @@
+.player-wrapper {
+    width: 100%;
+    height: 160px;
+    background-color: rgba(0, 0, 0, 0.449);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
+    color: white;
+
+    .top-bar {
+        display: flex;
+        align-items: center;
+        height: 70px;
+        margin-left: 80px;
+        margin-right: 80px;
+
+        .title {
+            font-size: 28px;
+        }
+
+        margin-bottom: 20px;
+
+    }
+
+    .controls {
+        margin-left: 80px;
+        display: flex;
+        flex-direction: row;
+
+        .control-button {
+            width: 100px;
+            height: 60px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
+            transition: all 100ms ease-in-out;
+            margin: 6px;
+            svg {
+                width: 30px;
+            }
+        }
+
+        .play-button {
+            background-color: #5A64B7;
+        }
+
+        .stop-button {
+            background-color: red;
+        }
+
+        .control-button:hover {
+            transform: translate(-0.5px, -1px);
+            box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+        }
+    }
+}

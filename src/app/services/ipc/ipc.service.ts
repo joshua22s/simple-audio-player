@@ -44,7 +44,7 @@ export class IpcService {
   }
 
   on(path: string, callback: any) {
-    this.ipc.on(path, callback);
+    return this.ipc.on(path, callback);
   }
 
   removeListener(channel: string, listener) {

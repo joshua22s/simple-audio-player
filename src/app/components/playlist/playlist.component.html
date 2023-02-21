@@ -2,6 +2,6 @@
     <h1 style="margin-left: 10px;">{{playlist.name}}</h1>
     <div class="add-button" (click)="addSongs()">+</div>
     <div class="list-wrapper">
-        <app-playlist-item *ngFor="let song of playlist.songs" [song]="song"></app-playlist-item>
+        <app-playlist-item *ngFor="let song of playlist.songs" [song]="song" [selected]="selectedSong && selectedSong.id && selectedSong.id == song.id ? true : false" (click)="selectSong(song)"></app-playlist-item>
     </div>
 </div>

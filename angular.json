@@ -35,6 +35,7 @@
             ],
             "styles": [
               "material-icons/iconfont/material-icons.css",
+              "src/rowcol-min.css",
               "src/styles.scss"
             ],
             "scripts": [],
@@ -147,6 +148,7 @@
             "scripts": [],
             "styles": [
               "material-icons/iconfont/material-icons.css",
+              "src/rowcol-min.css",
               "src/styles.scss"
             ],
             "assets": [
