@@ -10,7 +10,8 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 //custom
-import { ContextMenuModule } from '@ctrl/ngx-rightclick';
+
+import {OverlayModule} from '@angular/cdk/overlay';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -24,6 +25,7 @@ import { ButtonComponent } from './components/helpers/button/button.component';
 import { PlaylistWrapperComponent } from './components/playlist-wrapper/playlist-wrapper.component';
 import { CountdownComponent } from './components/helpers/countdown/countdown.component';
 import { ContextMenuComponent } from './components/playlist/context-menu/context-menu.component';
+import { PortalModule } from '@angular/cdk/portal';
 
 // AoT requires an exported function for factories
 const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -47,10 +49,11 @@ const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new Transla
       BrowserModule,
       BrowserAnimationsModule,
       FormsModule,
+      OverlayModule,
+      PortalModule,
       ReactiveFormsModule,
       HttpClientModule,
       AppRoutingModule,
-      ContextMenuModule,
       TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,

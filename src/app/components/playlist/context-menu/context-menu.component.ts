@@ -8,8 +8,6 @@ import { Song } from '../../../models/song';
 })
 export class ContextMenuComponent implements OnInit {
 
-  @Input() x = 0;
-  @Input() y = 0;
   @Input() song = new Song();
 
   @Output("onMenuClick") onMenuClickEvent = new EventEmitter();

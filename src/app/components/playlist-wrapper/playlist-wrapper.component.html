@@ -1,4 +1,6 @@
 <ng-container *ngIf="currentPlaylist">
+    <div class="playlist-wrapper">
+        <app-playlist [playlist]="currentPlaylist"></app-playlist>
+    </div>
     <app-player></app-player>
-    <app-playlist [playlist]="currentPlaylist" class="playlist-wrapper"></app-playlist>
 </ng-container>

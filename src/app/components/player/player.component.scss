@@ -1,48 +1,79 @@
 .player-wrapper {
+    position: absolute;
+    bottom: 0px;
     width: 100%;
-    height: 160px;
-    background-color: rgba(0, 0, 0, 0.449);
-    box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
+    height: 80px;
+    // background-color: rgba(0, 0, 0, 0.449);
+    // box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
+    /* From https://css.glass */
+    background: rgba(0, 0, 0, 0.36);
+    
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(7.7px);
+    -webkit-backdrop-filter: blur(7.7px);
     color: white;
 
-    .top-bar {
+    .title-wrapper {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 20px;
         display: flex;
         align-items: center;
-        height: 70px;
-        margin-left: 80px;
-        margin-right: 80px;
+        max-width: calc(50vw - 100px);
 
         .title {
-            font-size: 28px;
+            font-size: 18px;
         }
-
-        margin-bottom: 20px;
-
     }
 
-    .controls {
-        margin-left: 80px;
+    .countdown-wrapper {
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        right: 20px;
         display: flex;
+        align-items: center;
+        max-width: calc(50vw - 100px);
+    }
+
+
+    // margin-bottom: 20px;
+
+
+
+    .controls {
+        position: absolute;
+        top: 10px;
+        width: 100vw;
+        // margin-left: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-direction: row;
 
         .control-button {
-            width: 100px;
-            height: 60px;
-            border-radius: 10px;
+            width: 50px;
+            height: 50px;
+            border-radius: 360px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
             transition: all 100ms ease-in-out;
             margin: 6px;
+
             svg {
-                width: 30px;
+                width: 24px;
             }
         }
 
         .play-button {
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
             background-color: #5A64B7;
+            svg {
+                width: 28px;
+            }
         }
 
         .stop-button {

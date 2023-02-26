@@ -34,6 +34,7 @@
               "src/assets"
             ],
             "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "material-icons/iconfont/material-icons.css",
               "src/rowcol-min.css",
               "src/styles.scss"
@@ -147,6 +148,7 @@
             "inlineStyleLanguage": "scss",
             "scripts": [],
             "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "material-icons/iconfont/material-icons.css",
               "src/rowcol-min.css",
               "src/styles.scss"

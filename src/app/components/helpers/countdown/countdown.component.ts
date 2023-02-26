@@ -56,7 +56,6 @@ export class CountdownComponent implements OnInit, OnChanges {
 
   pause() {
     clearInterval(this.countdownInterval);
-    console.log("coutndown-pause");
     clearTimeout(this.countdownTimeout);
     this.onTickEvent.emit({ action: 'pause', left: this.timeLeft });
   }

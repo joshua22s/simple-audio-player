@@ -1,15 +1,16 @@
-<div class="playlist-wrapper" (click)="disableContextMenu()" oncontextmenu="return false;">
+<div class="playlist-wrapper container" (click)="disableContextMenu()" oncontextmenu="return false;">
     <h1 style="margin-left: 10px;">{{playlist.name}}</h1>
     <div class="add-button" (click)="addSongs()">+</div>
     <div class="list-wrapper">
-        <div *ngFor="let song of playlist.songs" (contextmenu)="onRightClick($event, song)">
-            <app-playlist-item [song]="song"
-                [selected]="selectedSong && selectedSong.id && selectedSong.id == song.id ? true : false"
-                (click)="selectSong(song)"></app-playlist-item>
-        </div>
+        <app-playlist-item [song]="song" *ngFor="let song of playlist.songs" cdkOverlayOrigin
+            #trigger="cdkOverlayOrigin" (contextmenu)="onRightClick(trigger, song)"
+            [selected]="selectedSong && selectedSong.id && selectedSong.id == song.id ? true : false"
+            (click)="selectSong(song)"></app-playlist-item>
     </div>
 </div>
 
-<div *ngIf="contextmenu">
-    <app-context-menu [x]="contextmenuX" [y]="contextmenuY" [song]="contextmenuSong" (onMenuClick)="onMenuClick($event)"></app-context-menu>
-</div>
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayPositions]="connectedPositions"
+    [cdkConnectedOverlayOrigin]="triggerOrigin" cdkConnectedOverlayHasBackdrop="true"
+    (backdropClick)="contextmenu=false" [cdkConnectedOverlayOpen]="contextmenu">
+    <app-context-menu [song]="contextmenuSong" (onMenuClick)="onMenuClick($event)"></app-context-menu>
+</ng-template>

@@ -29,6 +29,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
       if (song) {
         this.song = song;
         this.song.durationInMillis = song.duration * 1000;
+        this.running = false;
+        this.paused = false;
         this.cd.detectChanges();
         if (this.counter) {
           // this.counter.stop();
@@ -51,12 +53,15 @@ export class PlayerComponent implements OnInit, OnDestroy {
   onCounterTick(event: any) {
     switch (event.action) {
       case 'start':
+        this.playlistService.triggerSongAction("start");
         break;
       case 'notify':
         break;
       case 'pause':
+        this.playlistService.triggerSongAction("pause");
         break;
       case 'stop':
+        this.playlistService.triggerSongAction("stop");
         this.running = false;
         this.paused = false;
         break;
@@ -70,15 +75,23 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   play() {
     if (!this.running) {
+      //play
       if (this.counter) {
         this.running = true;
-        this.audioService.playAudio(this.song);
-        setTimeout(() => {
+        if (this.paused) {
+          this.audioService.continueAudio();
           this.counter.start(!this.paused);
-        }, 1000);
-        this.paused = false;
+          this.paused = false;
+        } else {
+          this.audioService.playAudio(this.song);
+          setTimeout(() => {
+            this.counter.start(!this.paused);
+            this.paused = false;
+          }, 1000);
+        }
       }
     } else {
+      //pause
       if (this.counter) {
         this.running = false;
         this.paused = true;
@@ -93,6 +106,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.running = false;
     this.paused = false;
     this.audioService.pauseAudio();
+  }
+
+  previous() {
+    this.stop();
+    this.playlistService.triggerSongAction("previous");
+    this.play();
+  }
+
+  next() {
+    this.stop();
+    this.playlistService.triggerSongAction("next");
+    this.play();
   }
 
 }

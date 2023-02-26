@@ -1,4 +1,6 @@
 <div *ngIf="song" class="song-wrapper" [class.song-selected]="selected">
     <span class="title">{{song.name}}</span>
-    <span class="duration">{{convertDurationToReadable(song.duration)}}</span>
+    <span class="duration">
+        <app-countdown [duration]="song.durationInMillis" #songCountdown></app-countdown>
+    </span>
 </div>
