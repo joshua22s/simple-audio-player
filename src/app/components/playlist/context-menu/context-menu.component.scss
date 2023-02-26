@@ -1,0 +1,30 @@
+.contextmenu {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+
+    .menu-item {
+        // width: fit-content;
+        padding: 15px 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+
+        svg {
+            width: 25px;
+            padding-right: 10px;
+        }
+    }
+
+    .menu-item:hover {
+        background-color: #5A64B7;
+        border-radius: 4px;
+    }
+
+    .delete:hover {
+        background-color: red;
+        border-radius: 4px;
+    }
+
+}

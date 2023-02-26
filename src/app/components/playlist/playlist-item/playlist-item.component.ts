@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Song } from '../../../models/song';
-import { PlaylistItemRightClickMenuComponent } from './playlist-item-right-click-menu/playlist-item-right-click-menu.component';
+
 
 @Component({
   selector: 'app-playlist-item',
@@ -8,8 +8,6 @@ import { PlaylistItemRightClickMenuComponent } from './playlist-item-right-click
   styleUrls: ['./playlist-item.component.scss']
 })
 export class PlaylistItemComponent implements OnInit {
-
-  menu = PlaylistItemRightClickMenuComponent;
 
   @Input("song") song: Song;
   @Input("selected") selected: boolean = false;
@@ -38,5 +36,4 @@ export class PlaylistItemComponent implements OnInit {
     }
     return `00:${secondsString}`
   }
-
 }

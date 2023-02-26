@@ -12,10 +12,17 @@ export class PlaylistService {
   private selectedSongDatasource = new BehaviorSubject<Song>(new Song());
   selectedSong = this.selectedSongDatasource.asObservable();
 
+  private songActionDatasource = new BehaviorSubject<any>('');
+  songAction = this.songActionDatasource.asObservable();
+
   constructor(private ipcService: IpcService) { }
 
   setSelectedSong(song: Song) {
     this.selectedSongDatasource.next(song);
+  }
+
+  triggerSongAction(action: string) {
+    this.songActionDatasource.next(action);
   }
 
   openFileDialog(): Promise<any> {
@@ -57,5 +64,9 @@ export class PlaylistService {
 
   addSongs(songs: Song[], playlistId: string) {
     return this.ipcService.sendSync("songs-add", { songs: songs, playlistId: playlistId });
+  }
+
+  removeSongs(songs: Song[]) {
+    this.ipcService.send("songs-remove", { songs: songs });
   }
 }

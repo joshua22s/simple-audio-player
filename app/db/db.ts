@@ -76,6 +76,16 @@ ipcMain.on("songs-add", (event, args) => {
     });
 });
 
+ipcMain.on("songs-remove", (event, args) => {
+    var promises = [];
+    for (let s of args.songs) {
+        promises.push(removeSong(s.id));
+    }
+    Promise.all(promises).then(() => {
+
+    });
+}); 
+
 function saveSong(path: string, name: string, duration: number, orderIndex: number, playlistId: number): Promise<Song> {
     return new Promise((resolve, reject) => {
         var newId = uuid().toString();
@@ -84,6 +94,15 @@ function saveSong(path: string, name: string, duration: number, orderIndex: numb
             db.get('SELECT * FROM song WHERE id = ?', [newId], (err: any, row: any) => {
                 resolve(convertRowToSong(row));
             });
+        });
+    })
+}
+
+function removeSong(id: string) {
+    return new Promise((resolve, reject) => {
+        let statement = db.prepare("DELETE FROM song WHERE id = ?");
+        statement.run([id], (res, err) => {
+            resolve(1);
         });
     })
 }

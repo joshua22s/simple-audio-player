@@ -31,7 +31,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.song.durationInMillis = song.duration * 1000;
         this.cd.detectChanges();
         if (this.counter) {
-          this.counter.stop();
+          // this.counter.stop();
           this.counter.reload();
         }
         //auto play
@@ -60,6 +60,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.running = false;
         this.paused = false;
         break;
+      case 'end':
+        this.playlistService.triggerSongAction("next");
+        this.play();
+        break;
+
     }
   }
 

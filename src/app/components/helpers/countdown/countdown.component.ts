@@ -23,7 +23,8 @@ export class CountdownComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.durationInMillis && !changes.durationInMillis.firstChange) {
+    if (changes.duration && !changes.duration.firstChange) {
+      this.timeLeft = 0;
       this.formatText();
     }
   }
@@ -46,6 +47,7 @@ export class CountdownComponent implements OnInit, OnChanges {
     this.countdownTimeout = setTimeout(() => {
       clearInterval(this.countdownInterval);
       this.onTickEvent.emit({ action: 'stop' });
+      this.onTickEvent.emit({ action: 'end' });
       this.timeLeft = 0;
       this.formatText();
     }, this.duration);
@@ -54,6 +56,7 @@ export class CountdownComponent implements OnInit, OnChanges {
 
   pause() {
     clearInterval(this.countdownInterval);
+    console.log("coutndown-pause");
     clearTimeout(this.countdownTimeout);
     this.onTickEvent.emit({ action: 'pause', left: this.timeLeft });
   }
@@ -63,7 +66,7 @@ export class CountdownComponent implements OnInit, OnChanges {
     this.formatText();
     clearInterval(this.countdownInterval);
     clearTimeout(this.countdownTimeout);
-    this.onTickEvent.emit({ action: 'stop'});
+    this.onTickEvent.emit({ action: 'stop' });
   }
 
   private formatText() {

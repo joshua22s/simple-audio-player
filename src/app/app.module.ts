@@ -22,8 +22,8 @@ import { NewPlaylistComponent } from './components/new-playlist/new-playlist.com
 import { OpenPlaylistComponent } from './components/open-playlist/open-playlist.component';
 import { ButtonComponent } from './components/helpers/button/button.component';
 import { PlaylistWrapperComponent } from './components/playlist-wrapper/playlist-wrapper.component';
-import { PlaylistItemRightClickMenuComponent } from './components/playlist/playlist-item/playlist-item-right-click-menu/playlist-item-right-click-menu.component';
 import { CountdownComponent } from './components/helpers/countdown/countdown.component';
+import { ContextMenuComponent } from './components/playlist/context-menu/context-menu.component';
 
 // AoT requires an exported function for factories
 const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -41,24 +41,25 @@ const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new Transla
     ButtonComponent,
     CountdownComponent,
     PlaylistWrapperComponent,
-    PlaylistItemRightClickMenuComponent],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    AppRoutingModule,
-    ContextMenuModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: httpLoaderFactory,
-        deps: [HttpClient]
-      }
-    })
+    ContextMenuComponent
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  imports: [
+      BrowserModule,
+      BrowserAnimationsModule,
+      FormsModule,
+      ReactiveFormsModule,
+      HttpClientModule,
+      AppRoutingModule,
+      ContextMenuModule,
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: httpLoaderFactory,
+          deps: [HttpClient]
+        }
+      })
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }
