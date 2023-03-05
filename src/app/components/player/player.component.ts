@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { PlayerAction } from '../../models/playerAction';
 import { Song } from '../../models/song';
 import { AudioService } from '../../services/audio/audio.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
@@ -13,6 +14,7 @@ import { CountdownComponent } from '../helpers/countdown/countdown.component';
 export class PlayerComponent implements OnInit, OnDestroy {
 
   private selectedSongSubscripion: Subscription;
+  private songActionSubscription: Subscription;
 
   @ViewChild("songCountdown")
   counter: CountdownComponent;
@@ -33,41 +35,47 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.paused = false;
         this.cd.detectChanges();
         if (this.counter) {
-          // this.counter.stop();
           this.counter.reload();
         }
-        //auto play
-        // this.running = false;
-        // this.paused = false;
-        // this.play();
       }
     });
+    this.songActionSubscription = this.playlistService.songAction.subscribe((action) => {
+      switch (action) {
+        case PlayerAction.EXTERNAL_PLAY:
+          this.play();
+          break;
+      }
+    })
   }
 
   ngOnDestroy(): void {
     if (this.selectedSongSubscripion) {
       this.selectedSongSubscripion.unsubscribe();
     }
+    if (this.songActionSubscription) {
+      this.songActionSubscription.unsubscribe();
+    }
   }
 
   onCounterTick(event: any) {
     switch (event.action) {
       case 'start':
-        this.playlistService.triggerSongAction("start");
+        if (!this.paused) {
+          this.playlistService.triggerSongAction(PlayerAction.PLAY);
+        }
         break;
       case 'notify':
         break;
       case 'pause':
-        this.playlistService.triggerSongAction("pause");
+        this.playlistService.triggerSongAction(PlayerAction.PAUSE);
         break;
       case 'stop':
-        this.playlistService.triggerSongAction("stop");
+        this.playlistService.triggerSongAction(PlayerAction.STOP);
         this.running = false;
         this.paused = false;
         break;
       case 'end':
-        this.playlistService.triggerSongAction("next");
-        this.play();
+        this.next();
         break;
 
     }
@@ -80,6 +88,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.running = true;
         if (this.paused) {
           this.audioService.continueAudio();
+          this.playlistService.triggerSongAction(PlayerAction.CONTINUE);
           this.counter.start(!this.paused);
           this.paused = false;
         } else {
@@ -87,7 +96,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             this.counter.start(!this.paused);
             this.paused = false;
-          }, 1000);
+          }, 800);
         }
       }
     } else {
@@ -110,14 +119,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   previous() {
     this.stop();
-    this.playlistService.triggerSongAction("previous");
-    this.play();
+    this.playlistService.triggerSongAction(PlayerAction.PREVIOUS);
+    setTimeout(() => {
+      this.play();
+    }, 10);
   }
 
   next() {
     this.stop();
-    this.playlistService.triggerSongAction("next");
-    this.play();
+    this.playlistService.triggerSongAction(PlayerAction.NEXT);
+    setTimeout(() => {
+      this.play();
+    }, 10);
   }
 
 }

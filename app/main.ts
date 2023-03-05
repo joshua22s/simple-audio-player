@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { setupTitlebar, attachTitlebarToWindow } from "custom-electron-titlebar/main";
@@ -54,7 +54,10 @@ function createWindow(): BrowserWindow {
     const url = new URL(path.join('file:', __dirname, pathIndex));
     win.loadURL(url.href);
   }
-
+  win.on('close', e => {
+    e.preventDefault();
+    win.webContents.send('trigger-close-actions');
+  })
   // Emitted when the window is closed.
   win.on('closed', () => {
     // Dereference the window object, usually you would store window
@@ -94,3 +97,8 @@ try {
   // Catch Error
   // throw e;
 }
+
+ipcMain.on('close', (event, args) => {
+  win.destroy();
+  app.exit();
+})

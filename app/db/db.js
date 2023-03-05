@@ -14,6 +14,11 @@ function dbSetup(window) {
     db.exec((0, fs_1.readFileSync)(`${__dirname}/script.sql`).toString());
 }
 exports.dbSetup = dbSetup;
+electron_1.ipcMain.on("config-get", (event, args) => {
+    db.get('SELECT * FROM app_config LIMIT 1', (err, row) => {
+        mainWindow.webContents.send("config-get-send", row);
+    });
+});
 electron_1.ipcMain.on("playlist-get", (event, args) => {
     db.get(`SELECT * FROM playlist WHERE id = ?`, [args], (err, row) => {
         getPlaylistSongs(args).then(songs => {
@@ -81,6 +86,14 @@ electron_1.ipcMain.on("songs-remove", (event, args) => {
     Promise.all(promises).then(() => {
     });
 });
+electron_1.ipcMain.on("save-last-song", (event, args) => {
+    var promises = [];
+    promises.push(savePlaylistLastSongPlayed(args.playlistId, args.songId));
+    promises.push(saveLastPlaylist(args.playlistId));
+    Promise.all(promises).then(() => {
+        mainWindow.webContents.send('save-last-song-send', 'ok');
+    });
+});
 function saveSong(path, name, duration, orderIndex, playlistId) {
     return new Promise((resolve, reject) => {
         var newId = (0, uuid_1.v4)().toString();
@@ -89,6 +102,22 @@ function saveSong(path, name, duration, orderIndex, playlistId) {
             db.get('SELECT * FROM song WHERE id = ?', [newId], (err, row) => {
                 resolve(convertRowToSong(row));
             });
+        });
+    });
+}
+function savePlaylistLastSongPlayed(playlistId, songId) {
+    return new Promise((resolve, reject) => {
+        let statement = db.prepare("UPDATE playlist SET lastSongPlayedId = ? WHERE id = ?");
+        statement.run([songId, playlistId], (resp, err) => {
+            resolve("");
+        });
+    });
+}
+function saveLastPlaylist(playlistId) {
+    return new Promise((resolve, reject) => {
+        let statement = db.prepare("UPDATE app_config SET lastPlaylistId = ?");
+        statement.run([playlistId], (resp, err) => {
+            resolve("");
         });
     });
 }
@@ -106,6 +135,7 @@ function convertRowToPlaylist(row) {
     p.name = row.name;
     p.songs = row.songs;
     p.created = row.created;
+    p.lastSongPlayedId = row.lastSongPlayedId;
     p.songs = [];
     return p;
 }

@@ -3,7 +3,7 @@
     <div class="add-button" (click)="addSongs()">+</div>
     <div class="list-wrapper">
         <app-playlist-item [song]="song" *ngFor="let song of playlist.songs" cdkOverlayOrigin
-            #trigger="cdkOverlayOrigin" (contextmenu)="onRightClick(trigger, song)"
+            #trigger="cdkOverlayOrigin" (contextmenu)="onRightClick(trigger, song)" [id]="song.id"
             [selected]="selectedSong && selectedSong.id && selectedSong.id == song.id ? true : false"
             (click)="selectSong(song)"></app-playlist-item>
     </div>

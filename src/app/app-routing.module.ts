@@ -13,17 +13,17 @@ const routes: Routes = [
       {
         path: 'playlists/:id',
         component: PlaylistWrapperComponent
+      },
+      {
+        path: 'new',
+        component: NewPlaylistComponent
+      },
+      {
+        path: 'open',
+        component: OpenPlaylistComponent
       }
     ]
   },
-  {
-    path: 'new',
-    component: NewPlaylistComponent
-  },
-  {
-    path: 'open',
-    component: OpenPlaylistComponent
-  }
 ];
 
 @NgModule({

@@ -12,6 +12,12 @@ export function dbSetup(window: any) {
     db.exec(readFileSync(`${__dirname}/script.sql`).toString());
 }
 
+ipcMain.on("config-get", (event, args) => {
+    db.get('SELECT * FROM app_config LIMIT 1', (err: any, row: any) => {
+        mainWindow.webContents.send("config-get-send", row);
+    });
+})
+
 ipcMain.on("playlist-get", (event, args) => {
     db.get(`SELECT * FROM playlist WHERE id = ?`, [args], (err: any, row: any) => {
         getPlaylistSongs(args).then(songs => {
@@ -84,9 +90,18 @@ ipcMain.on("songs-remove", (event, args) => {
     Promise.all(promises).then(() => {
 
     });
-}); 
+});
 
-function saveSong(path: string, name: string, duration: number, orderIndex: number, playlistId: number): Promise<Song> {
+ipcMain.on("save-last-song", (event, args) => {
+    var promises = [];
+    promises.push(savePlaylistLastSongPlayed(args.playlistId, args.songId));
+    promises.push(saveLastPlaylist(args.playlistId));
+    Promise.all(promises).then(() => {
+        mainWindow.webContents.send('save-last-song-send', 'ok');
+    });
+});
+
+function saveSong(path: string, name: string, duration: number, orderIndex: number, playlistId: string): Promise<Song> {
     return new Promise((resolve, reject) => {
         var newId = uuid().toString();
         let statement = db.prepare("INSERT INTO song(id, name, path, duration, orderIndex, playlistId) VALUES(?,?,?,?,?,?)")
@@ -96,6 +111,24 @@ function saveSong(path: string, name: string, duration: number, orderIndex: numb
             });
         });
     })
+}
+
+function savePlaylistLastSongPlayed(playlistId: string, songId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        let statement = db.prepare("UPDATE playlist SET lastSongPlayedId = ? WHERE id = ?");
+        statement.run([songId, playlistId], (resp, err) => {
+            resolve("");
+        });
+    });
+}
+
+function saveLastPlaylist(playlistId: string) {
+    return new Promise((resolve, reject) => {
+        let statement = db.prepare("UPDATE app_config SET lastPlaylistId = ?");
+        statement.run([playlistId], (resp, err) => {
+            resolve("");
+        });
+    });
 }
 
 function removeSong(id: string) {
@@ -113,6 +146,7 @@ function convertRowToPlaylist(row: any): Playlist {
     p.name = row.name;
     p.songs = row.songs;
     p.created = row.created;
+    p.lastSongPlayedId = row.lastSongPlayedId;
     p.songs = [];
     return p
 }

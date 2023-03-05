@@ -38,6 +38,8 @@ export class CountdownComponent implements OnInit, OnChanges {
       this.timeLeft = this.duration;
     }
     this.onTickEvent.emit({ action: 'start' });
+    clearInterval(this.countdownInterval);
+    clearTimeout(this.countdownTimeout);
     this.countdownInterval = setInterval(() => {
       this.timeLeft = this.timeLeft - 100;
       this.formatText();

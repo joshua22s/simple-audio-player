@@ -5,5 +5,6 @@ export class Playlist {
     name: string;
     songs: Song[];
     lastPlayed: Song;
+    lastSongPlayedId: string;
     created: number;
 }

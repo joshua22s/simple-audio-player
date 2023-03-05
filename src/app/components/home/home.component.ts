@@ -1,19 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Playlist } from '../../models/playlist';
+import { Subscription } from 'rxjs';
+import { GeneralService } from '../../services/general/general.service';
+import { PlaylistService } from '../../services/playlist/playlist.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
+  private closeSubscription: Subscription;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private generalService: GeneralService, private playlistService: PlaylistService) { }
 
   ngOnInit(): void {
-    // this.createTestPlaylist();
+    this.generalService.getConfig().then((config: any) => {
+      console.log(config);
+      if (config) {
+        this.router.navigateByUrl(`playlists/${config.lastPlaylistId}`);
+      }
+    });
+    this.closeSubscription = this.generalService.onAppClose().subscribe(() => {
+      this.playlistService.saveLastSong().then(() => {
+        this.generalService.closeApp();
+      });
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.closeSubscription) {
+      this.closeSubscription.unsubscribe();
+    }
   }
 
 

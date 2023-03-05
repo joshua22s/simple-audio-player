@@ -1,8 +1,10 @@
 import { ConnectedPosition, Overlay } from '@angular/cdk/overlay';
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { PlayerAction } from '../../models/playerAction';
 import { Playlist } from '../../models/playlist';
 import { Song } from '../../models/song';
+import { AudioService } from '../../services/audio/audio.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 
 @Component({
@@ -33,16 +35,18 @@ export class PlaylistComponent implements OnInit, OnDestroy {
     }
   ];
 
-  constructor(private playlistService: PlaylistService, private overlay: Overlay) { }
+  constructor(private playlistService: PlaylistService, private overlay: Overlay, private audioService: AudioService) { }
 
   ngOnInit(): void {
+    console.log(this.playlist);
+    this.playlistService.setSelectedPlaylist(this.playlist);
     this.selectedSongSubscription = this.playlistService.selectedSong.subscribe(song => {
       this.selectedSong = song;
     });
     this.playlistActionSubscription = this.playlistService.songAction.subscribe(action => {
       if (action) {
         switch (action) {
-          case "next":
+          case PlayerAction.NEXT:
             var curIndex = this.playlist.songs.findIndex(s => s.id == this.selectedSong.id);
             var newIndex = 0;
             if (curIndex + 1 < this.playlist.songs.length) {
@@ -50,7 +54,7 @@ export class PlaylistComponent implements OnInit, OnDestroy {
             }
             this.playlistService.setSelectedSong(this.playlist.songs[newIndex]);
             break;
-          case "previous":
+          case PlayerAction.PREVIOUS:
             var curIndex = this.playlist.songs.findIndex(s => s.id == this.selectedSong.id);
             var newIndex = 0;
             if (curIndex > 0) {
@@ -58,9 +62,13 @@ export class PlaylistComponent implements OnInit, OnDestroy {
             }
             this.playlistService.setSelectedSong(this.playlist.songs[newIndex]);
             break;
+          }
         }
-      }
-    })
+      });
+      this.playlistService.setSelectedSong(this.playlist.songs.find(s => s.id == this.playlist.lastSongPlayedId));
+      setTimeout(() => {
+        this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
+      }, 10);
   }
 
   ngOnDestroy(): void {
@@ -71,14 +79,14 @@ export class PlaylistComponent implements OnInit, OnDestroy {
       this.playlistActionSubscription.unsubscribe();
     }
   }
-
+  
   selectSong(song: Song) {
+    this.playlistService.triggerSongAction(PlayerAction.STOP);
+    this.audioService.pauseAudio();
     this.playlistService.setSelectedSong(song);
   }
 
   onRightClick(trigger, song: Song) {
-    // console.log(event);
-    console.log(trigger);
     this.triggerOrigin = trigger;
     this.contextmenu = true;
     this.contextmenuSong = song;

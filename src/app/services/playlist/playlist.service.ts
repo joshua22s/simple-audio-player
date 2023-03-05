@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { PlayerAction } from '../../models/playerAction';
 import { Playlist } from '../../models/playlist';
 import { Song } from '../../models/song';
 import { IpcService } from '../ipc/ipc.service';
@@ -9,19 +10,25 @@ import { IpcService } from '../ipc/ipc.service';
 })
 export class PlaylistService {
 
+  private selectedPlaylist: Playlist;
+
   private selectedSongDatasource = new BehaviorSubject<Song>(new Song());
   selectedSong = this.selectedSongDatasource.asObservable();
 
-  private songActionDatasource = new BehaviorSubject<any>('');
+  private songActionDatasource = new BehaviorSubject<PlayerAction>(null);
   songAction = this.songActionDatasource.asObservable();
 
   constructor(private ipcService: IpcService) { }
+
+  setSelectedPlaylist(playlist: Playlist) {
+    this.selectedPlaylist = playlist;
+  }
 
   setSelectedSong(song: Song) {
     this.selectedSongDatasource.next(song);
   }
 
-  triggerSongAction(action: string) {
+  triggerSongAction(action: PlayerAction) {
     this.songActionDatasource.next(action);
   }
 
@@ -68,5 +75,20 @@ export class PlaylistService {
 
   removeSongs(songs: Song[]) {
     this.ipcService.send("songs-remove", { songs: songs });
+  }
+
+  saveLastSong(): Promise<any> {
+    return new Promise((res, rej) => {
+      if (this.selectedPlaylist && this.selectedPlaylist.id && this.selectedSongDatasource.value && this.selectedSongDatasource.value.id) {
+        this.ipcService.send("save-last-song", { playlistId: this.selectedPlaylist.id, songId: this.selectedSongDatasource.value.id });
+        var sub = (event, done) => {
+          res(done);
+          this.ipcService.removeListener("save-last-song-send", sub);
+        }
+        this.ipcService.on("save-last-song-send", sub);
+      } else {
+        res('ok');
+      }
+    });
   }
 }
