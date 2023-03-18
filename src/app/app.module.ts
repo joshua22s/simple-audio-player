@@ -9,6 +9,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
+
+import {MatMenuModule} from '@angular/material/menu';
+
 //custom
 
 import {OverlayModule} from '@angular/cdk/overlay';
@@ -53,6 +56,7 @@ const httpLoaderFactory = (http: HttpClient): TranslateHttpLoader => new Transla
       PortalModule,
       ReactiveFormsModule,
       HttpClientModule,
+      MatMenuModule,
       AppRoutingModule,
       TranslateModule.forRoot({
         loader: {

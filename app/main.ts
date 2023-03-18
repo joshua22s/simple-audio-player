@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, screen, webContents } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { setupTitlebar, attachTitlebarToWindow } from "custom-electron-titlebar/main";
@@ -31,7 +31,7 @@ function createWindow(): BrowserWindow {
     frame: false
   });
 
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
   attachTitlebarToWindow(win);
   dbSetup(win);
   filesHandlerSetup(win);
@@ -101,4 +101,8 @@ try {
 ipcMain.on('close', (event, args) => {
   win.destroy();
   app.exit();
-})
+});
+
+ipcMain.on('dev-tools', (event, args) => {
+  win.webContents.openDevTools();
+});

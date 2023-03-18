@@ -28,6 +28,10 @@ export class GeneralService {
     });
   }
 
+  openDevTools() {
+    this.ipcService.send("dev-tools");
+  }
+
   closeApp() {
     this.ipcService.send("close");
   }

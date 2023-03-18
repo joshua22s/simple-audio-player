@@ -17,7 +17,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.generalService.getConfig().then((config: any) => {
-      console.log(config);
       if (config) {
         this.router.navigateByUrl(`playlists/${config.lastPlaylistId}`);
       }
@@ -42,6 +41,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   openPlaylist() {
     this.router.navigateByUrl("/open");
+  }
+
+  openDevTools() {
+    this.generalService.openDevTools();
   }
 
 }
