@@ -58,6 +58,7 @@
     "@angular/router": "15.2.0",
     "@ctrl/ngx-rightclick": "4.0.0",
     "custom-electron-titlebar": "4.1.6",
+    "electron-log": "4.4.8",
     "get-audio-duration": "3.1.1",
     "material-icons": "1.13.1",
     "rxjs": "7.5.7",

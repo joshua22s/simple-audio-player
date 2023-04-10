@@ -1,5 +1,5 @@
 {
-  "asar": true,
+  "asar": false,
   "productName": "Simple Audio Player",
   "directories": {
     "output": "release/"

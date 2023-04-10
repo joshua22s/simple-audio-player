@@ -1,12 +1,15 @@
 import { app, BrowserWindow, ipcMain, screen, webContents } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
+import { Logger } from './logger/logger';
 import { setupTitlebar, attachTitlebarToWindow } from "custom-electron-titlebar/main";
 import { dbSetup } from './db/db';
 import { filesHandlerSetup } from './fileshandler/fileshandler';
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some(val => val === '--serve');
+
+let log: Logger;
 
 setupTitlebar();
 
@@ -32,9 +35,11 @@ function createWindow(): BrowserWindow {
   });
 
   // win.webContents.openDevTools();
+  log = new Logger(app);
   attachTitlebarToWindow(win);
   dbSetup(win, app);
-  filesHandlerSetup(win);
+  filesHandlerSetup(win, log);
+  log.info("Simple Audio Player started");
 
   if (serve) {
     const debug = require('electron-debug');
@@ -65,7 +70,6 @@ function createWindow(): BrowserWindow {
     // when you should delete the corresponding element.
     win = null;
   });
-
   return win;
 }
 

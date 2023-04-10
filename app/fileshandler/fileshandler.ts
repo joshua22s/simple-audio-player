@@ -1,10 +1,14 @@
 import { dialog, ipcMain } from 'electron';
 import { stat } from 'fs';
 import { getAudioDurationInSeconds } from 'get-audio-duration';
+import { Logger } from '../logger/logger';
 var mainWindow;
+var log;
 
-export function filesHandlerSetup(window: any) {
+
+export function filesHandlerSetup(window: any, logger: Logger) {
     mainWindow = window;
+    log = logger;
 }
 
 ipcMain.on("open-files", (event, args) => {
@@ -15,6 +19,7 @@ ipcMain.on("open-files", (event, args) => {
         properties: ['openFile', 'multiSelections']
     });
     resp.then(res => {
+        log.info(JSON.stringify(res));
         if (!res.canceled) {
             var filepaths = res.filePaths;
             var songs = [];
@@ -27,6 +32,8 @@ ipcMain.on("open-files", (event, args) => {
                     songs.push({path: filepaths[i], duration: durations[i]});
                 }
                 mainWindow.webContents.send('open-files-change', songs);
+            }).catch(err => {
+                log.error(JSON.stringify(err));
             })
         }
     });

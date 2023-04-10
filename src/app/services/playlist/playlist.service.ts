@@ -36,6 +36,7 @@ export class PlaylistService {
     return new Promise((resolve, reject) => {
       this.ipcService.send("open-files");
       var sub = (event, args) => {
+        console.log("hi");
         resolve(args);
         this.ipcService.removeListener("open-files-change", sub);
       }

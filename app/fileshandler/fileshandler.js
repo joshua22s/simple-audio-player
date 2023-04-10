@@ -4,8 +4,10 @@ exports.filesHandlerSetup = void 0;
 const electron_1 = require("electron");
 const get_audio_duration_1 = require("get-audio-duration");
 var mainWindow;
-function filesHandlerSetup(window) {
+var log;
+function filesHandlerSetup(window, logger) {
     mainWindow = window;
+    log = logger;
 }
 exports.filesHandlerSetup = filesHandlerSetup;
 electron_1.ipcMain.on("open-files", (event, args) => {
@@ -16,6 +18,7 @@ electron_1.ipcMain.on("open-files", (event, args) => {
         properties: ['openFile', 'multiSelections']
     });
     resp.then(res => {
+        log.info(JSON.stringify(res));
         if (!res.canceled) {
             var filepaths = res.filePaths;
             var songs = [];
@@ -28,6 +31,8 @@ electron_1.ipcMain.on("open-files", (event, args) => {
                     songs.push({ path: filepaths[i], duration: durations[i] });
                 }
                 mainWindow.webContents.send('open-files-change', songs);
+            }).catch(err => {
+                log.error(JSON.stringify(err));
             });
         }
     });
