@@ -36,6 +36,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
       if (song) {
         this.error = false;
         this.song = song;
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: this.song.name
+        })
         this.song.durationInMillis = song.duration * 1000;
         this.running = false;
         this.paused = false;
@@ -53,6 +56,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
           break;
       }
     });
+    this.setMediaSessionActions();
     // this.audioTickSubscription = this.audioService.audioTickSubscription.subscribe((tick) => {
     //   console.log(tick);
     //   if (tick && tick.total) {
@@ -72,6 +76,29 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.audioTickSubscription.unsubscribe();
     }
     this.stop();
+  }
+
+  setMediaSessionActions() {
+    navigator.mediaSession.setActionHandler("play", () => {
+      this.play();
+      this.cd.detectChanges();
+    });
+    navigator.mediaSession.setActionHandler("pause", () => {
+      this.play();
+      this.cd.detectChanges();
+    });
+    navigator.mediaSession.setActionHandler("stop", () => {
+      this.stop();
+      this.cd.detectChanges();
+    });
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      this.next();
+      this.cd.detectChanges();
+    });
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      this.previous();
+      this.cd.detectChanges();
+    });
   }
 
   onCounterTick(event: any) {

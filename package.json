@@ -57,6 +57,7 @@
     "@angular/platform-browser-dynamic": "15.2.0",
     "@angular/router": "15.2.0",
     "@ctrl/ngx-rightclick": "4.0.0",
+    "@types/wicg-mediasession": "1.1.4",
     "custom-electron-titlebar": "4.1.6",
     "electron-log": "4.4.8",
     "get-audio-duration": "3.1.1",
