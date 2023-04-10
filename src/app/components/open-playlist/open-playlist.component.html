@@ -5,12 +5,10 @@
             <tr>
                 <th>Naam</th>
                 <th>Aanmaakdatum</th>
-                <th>Aantal nummers</th>
             </tr>
             <tr *ngFor="let playlist of playlists" (click)="openPlaylist(playlist)">
                 <td class="playlist-name">{{playlist.name}}</td>
                 <td class="playlist-date">{{playlist.created | date:'dd-MM-yyyy HH:mm'}}</td>
-                <td class="playlist-songs">{{playlist.songs.length}}</td>
             </tr>
         </table>
     </div>

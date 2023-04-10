@@ -19,11 +19,16 @@
         bottom: 0px;
         left: 20px;
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        justify-content: center;
         max-width: calc(50vw - 100px);
 
         .title {
             font-size: 18px;
+        }
+        .error {
+            font-size: 12px;
+            color: red;
         }
     }
 
@@ -74,6 +79,13 @@
             svg {
                 width: 28px;
             }
+        }
+
+        .disabled {
+            transform: none !important;
+            box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px !important;
+            background-color: grey;
+            cursor:not-allowed;
         }
 
         .stop-button {

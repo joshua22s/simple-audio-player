@@ -17,7 +17,6 @@ export class PlaylistWrapperComponent implements OnInit {
   ngOnInit(): void {
     this.playlistService.getPlaylist(this.router.url.split("/")[2]).then(playlist => {
       this.currentPlaylist = playlist;
-      console.log(this.currentPlaylist);
     });
   }
 

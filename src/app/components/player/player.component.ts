@@ -15,6 +15,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   private selectedSongSubscripion: Subscription;
   private songActionSubscription: Subscription;
+  private audioTickSubscription: Subscription;
 
   @ViewChild("songCountdown")
   counter: CountdownComponent;
@@ -23,12 +24,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   running: boolean = false;
   paused: boolean = false;
+  error: boolean = false;
+
+  currentTime: number = 0;
 
   constructor(private playlistService: PlaylistService, private audioService: AudioService, private cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
+    this.error = false;
     this.selectedSongSubscripion = this.playlistService.selectedSong.subscribe(song => {
       if (song) {
+        this.error = false;
         this.song = song;
         this.song.durationInMillis = song.duration * 1000;
         this.running = false;
@@ -42,10 +48,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.songActionSubscription = this.playlistService.songAction.subscribe((action) => {
       switch (action) {
         case PlayerAction.EXTERNAL_PLAY:
+          this.error = false;
           this.play();
           break;
       }
-    })
+    });
+    // this.audioTickSubscription = this.audioService.audioTickSubscription.subscribe((tick) => {
+    //   console.log(tick);
+    //   if (tick && tick.total) {
+    //     this.currentTime = Math.round(tick.total - tick.current);
+    //   }
+    // });
   }
 
   ngOnDestroy(): void {
@@ -55,6 +68,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (this.songActionSubscription) {
       this.songActionSubscription.unsubscribe();
     }
+    if (this.audioTickSubscription) {
+      this.audioTickSubscription.unsubscribe();
+    }
+    this.stop();
   }
 
   onCounterTick(event: any) {
@@ -75,28 +92,38 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.paused = false;
         break;
       case 'end':
-        this.next();
+        this.next(true);
         break;
 
     }
   }
 
-  play() {
+  play(auto?: boolean) {
+    this.error = false;
     if (!this.running) {
       //play
       if (this.counter) {
-        this.running = true;
         if (this.paused) {
+          this.running = true;
           this.audioService.continueAudio();
           this.playlistService.triggerSongAction(PlayerAction.CONTINUE);
           this.counter.start(!this.paused);
           this.paused = false;
         } else {
-          this.audioService.playAudio(this.song);
-          setTimeout(() => {
-            this.counter.start(!this.paused);
-            this.paused = false;
-          }, 800);
+          this.audioService.playAudio(this.song).then(() => {
+            this.running = true;
+            setTimeout(() => {
+              this.counter.start(!this.paused);
+              this.paused = false;
+            }, 800);
+          }).catch(() => {
+            this.error = true;
+            if (auto) {
+              setTimeout(() => {
+                this.next();
+              }, 4000);
+            }
+          });
         }
       }
     } else {
@@ -111,13 +138,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   stop() {
-    this.counter.stop();
+    this.error = false;
+    if (this.counter) {
+      this.counter.stop();
+    }
     this.running = false;
     this.paused = false;
     this.audioService.pauseAudio();
   }
 
   previous() {
+    this.error = false;
     this.stop();
     this.playlistService.triggerSongAction(PlayerAction.PREVIOUS);
     setTimeout(() => {
@@ -125,11 +156,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }, 10);
   }
 
-  next() {
+  next(auto?: boolean) {
+    this.error = false;
     this.stop();
     this.playlistService.triggerSongAction(PlayerAction.NEXT);
     setTimeout(() => {
-      this.play();
+      this.play(auto);
     }, 10);
   }
 

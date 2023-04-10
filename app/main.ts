@@ -33,7 +33,7 @@ function createWindow(): BrowserWindow {
 
   // win.webContents.openDevTools();
   attachTitlebarToWindow(win);
-  dbSetup(win);
+  dbSetup(win, app);
   filesHandlerSetup(win);
 
   if (serve) {

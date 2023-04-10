@@ -1,24 +1,49 @@
 import { Injectable } from '@angular/core';
 import { Song } from '../../models/song';
 
-import { Blob } from 'buffer';
+import { BehaviorSubject, Subscription } from 'rxjs';
+
+export class AudioTick {
+  current: number;
+  total: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AudioService {
 
+  private audioTickDatasource = new BehaviorSubject<AudioTick>(null);
+  audioTickSubscription = this.audioTickDatasource.asObservable();
+
   private audio;
 
   constructor() { }
 
-  playAudio(song: Song) {
-    if (this.audio) {
-      this.audio.pause();
-    }
-    this.audio = new Audio();
-    this.audio.src = song.path;
-    this.audio.load();
-    this.audio.play();
+  playAudio(song: Song): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (this.audio) {
+        this.audio.pause();
+      }
+      this.audio = new Audio();
+      this.audio.addEventListener("error", (err) => {
+        reject();
+      });
+      this.audio.addEventListener("abort", () => {
+        reject();
+      });
+      this.audio.addEventListener("canplay", () => {
+        resolve("");
+      });
+      this.audio.addEventListener("timeupdate", () => {
+        this.audioTickDatasource.next({ current: this.audio.currentTime, total: this.audio.duration });
+      });
+      this.audio.src = song.path;
+      this.audio.load();
+      this.audio.play();
+    });
+
+
   }
 
   continueAudio() {

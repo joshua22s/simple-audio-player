@@ -18,10 +18,6 @@ export class NewPlaylistComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  back() {
-    this.router.navigateByUrl("");
-  }
-
   create() {
     var playlist = this.playlistService.createPlaylist(this.playlistNameFormControl.value) as Playlist;
     this.router.navigateByUrl(`playlists/${playlist.id}`);

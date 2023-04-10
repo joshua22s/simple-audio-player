@@ -1,14 +1,20 @@
 import { ipcMain } from 'electron';
 import { Database, Statement } from 'sqlite3';
 import { v4 as uuid } from 'uuid';
-import { Playlist } from '../../src/app/models/playlist';
 import { readFileSync } from 'fs';
-import { Song } from '../../src/app/models/song';
+import { Song } from '../models/song';
+import { Playlist } from '../models/playlist';
+import * as path from 'path';
 var mainWindow;
-const db = new Database('db.sqlite');
+var mainApp;
+var dbPath;
+var db;
 
-export function dbSetup(window: any) {
+export function dbSetup(window: any, app: any) {
     mainWindow = window;
+    mainApp = app;
+    dbPath = path.join(mainApp.getPath("userData"), 'db.sqlite');
+    db = new Database(dbPath);
     db.exec(readFileSync(`${__dirname}/script.sql`).toString());
 }
 
@@ -42,22 +48,11 @@ function getPlaylistSongs(playlistId: string): Promise<any> {
 ipcMain.on("playlist-get-all", (event, args) => {
     var promises = [];
     var playlists = [];
-    db.each("SELECT * FROM playlist", (err: any, row: any) => {
-        // console.log("hello");
-        // console.log(row);
-        // promises.push(new Promise((res, rej) => {
-        //     res(convertRowToPlaylist(row));
-        // }));
+    db.each("SELECT p.id as id, p.name as name, p.created as created, p.lastSongPlayedId as lastSongPlayedId FROM playlist p", (err: any, row: any) => {
         playlists.push(convertRowToPlaylist(row));
     }, (err: any, count: number) => {
-        // console.log(playlists);
         mainWindow.webContents.send('playlist-get-all-send', playlists);
     });
-    // Promise.all(promises).then(playlists => {
-    //     console.log("all playlists");
-    //     console.log(playlists);
-    //     mainWindow.webContents.send('playlist-get-all-send', playlists);
-    // })
 });
 
 ipcMain.on("playlist-create", (event, args) => {
@@ -148,6 +143,7 @@ function convertRowToPlaylist(row: any): Playlist {
     p.created = row.created;
     p.lastSongPlayedId = row.lastSongPlayedId;
     p.songs = [];
+    p.songCount = row.songCount;
     return p
 }
 

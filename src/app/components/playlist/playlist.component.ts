@@ -38,7 +38,6 @@ export class PlaylistComponent implements OnInit, OnDestroy {
   constructor(private playlistService: PlaylistService, private overlay: Overlay, private audioService: AudioService) { }
 
   ngOnInit(): void {
-    console.log(this.playlist);
     this.playlistService.setSelectedPlaylist(this.playlist);
     this.selectedSongSubscription = this.playlistService.selectedSong.subscribe(song => {
       this.selectedSong = song;
@@ -112,7 +111,6 @@ export class PlaylistComponent implements OnInit, OnDestroy {
   public addSongs() {
     this.playlistService.openFileDialog().then((files) => {
       this.playlist.songs = this.playlist.songs.concat(this.playlistService.addSongs(this.convertFilesToSongs(files), this.playlist.id));
-      console.log(this.playlist.songs);
     });
   }
 

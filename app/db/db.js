@@ -4,13 +4,19 @@ exports.dbSetup = void 0;
 const electron_1 = require("electron");
 const sqlite3_1 = require("sqlite3");
 const uuid_1 = require("uuid");
-const playlist_1 = require("../../src/app/models/playlist");
 const fs_1 = require("fs");
-const song_1 = require("../../src/app/models/song");
+const song_1 = require("../models/song");
+const playlist_1 = require("../models/playlist");
+const path = require("path");
 var mainWindow;
-const db = new sqlite3_1.Database('db.sqlite');
-function dbSetup(window) {
+var mainApp;
+var dbPath;
+var db;
+function dbSetup(window, app) {
     mainWindow = window;
+    mainApp = app;
+    dbPath = path.join(mainApp.getPath("userData"), 'db.sqlite');
+    db = new sqlite3_1.Database(dbPath);
     db.exec((0, fs_1.readFileSync)(`${__dirname}/script.sql`).toString());
 }
 exports.dbSetup = dbSetup;
@@ -41,22 +47,11 @@ function getPlaylistSongs(playlistId) {
 electron_1.ipcMain.on("playlist-get-all", (event, args) => {
     var promises = [];
     var playlists = [];
-    db.each("SELECT * FROM playlist", (err, row) => {
-        // console.log("hello");
-        // console.log(row);
-        // promises.push(new Promise((res, rej) => {
-        //     res(convertRowToPlaylist(row));
-        // }));
+    db.each("SELECT p.id as id, p.name as name, p.created as created, p.lastSongPlayedId as lastSongPlayedId FROM playlist p", (err, row) => {
         playlists.push(convertRowToPlaylist(row));
     }, (err, count) => {
-        // console.log(playlists);
         mainWindow.webContents.send('playlist-get-all-send', playlists);
     });
-    // Promise.all(promises).then(playlists => {
-    //     console.log("all playlists");
-    //     console.log(playlists);
-    //     mainWindow.webContents.send('playlist-get-all-send', playlists);
-    // })
 });
 electron_1.ipcMain.on("playlist-create", (event, args) => {
     var name = args;
@@ -137,6 +132,7 @@ function convertRowToPlaylist(row) {
     p.created = row.created;
     p.lastSongPlayedId = row.lastSongPlayedId;
     p.songs = [];
+    p.songCount = row.songCount;
     return p;
 }
 function convertRowToSong(row) {

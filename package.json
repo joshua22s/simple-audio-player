@@ -1,11 +1,11 @@
 {
-  "name": "angular-electron",
-  "version": "11.2.0",
-  "description": "Angular 14 with Electron 21 (Typescript + SASS + Hot Reload)",
-  "homepage": "https://github.com/maximegris/angular-electron",
+  "name": "simple-audio-player",
+  "version": "1.0.0",
+  "description": "Simple Audio Player",
+  "homepage": "https://avits.nl",
   "author": {
-    "name": "Maxime GRIS",
-    "email": "maxime.gris@gmail.com"
+    "name": "Joshua Schers",
+    "email": "info@avits.nl"
   },
   "keywords": [
     "angular",
@@ -36,7 +36,7 @@
     "electron:serve-tsc": "tsc -p tsconfig.serve.json",
     "electron:serve": "wait-on tcp:4200 && npm run electron:serve-tsc && electron . --serve",
     "electron:local": "npm run build:prod && electron .",
-    "electron:build": "npm run build:prod && electron-builder build --publish=never",
+    "electron:build": "npm run build:prod && electron-builder build --publish=never && electron-builder install-app-deps",
     "test": "ng test --watch=false",
     "test:watch": "ng test",
     "e2e": "npm run build:prod && playwright test -c e2e/playwright.config.ts e2e/",

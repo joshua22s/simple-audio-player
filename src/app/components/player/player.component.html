@@ -3,6 +3,7 @@
         <!-- <div class="top-bar"> -->
         <div class="title-wrapper">
             <span class="title">{{song.name}}</span>
+            <span *ngIf="error" class="error">bestand niet gevonden of ongeldig!</span>
         </div>
         <!-- <span style="flex: 1;"></span> -->
         <!-- </div> -->
@@ -22,7 +23,7 @@
                     </g>
                 </svg>
             </div>
-            <div class="play-button control-button" (click)="play()">
+            <div [class.disabled]="error" class="play-button control-button" (click)="play()">
                 <svg *ngIf="!running" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                     <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
