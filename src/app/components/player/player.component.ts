@@ -80,12 +80,20 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   setMediaSessionActions() {
     navigator.mediaSession.setActionHandler("play", () => {
-      this.play();
-      this.cd.detectChanges();
+      if (!this.error) {
+        this.play();
+        this.cd.detectChanges();
+      } else {
+        this.running = false;
+      }
     });
     navigator.mediaSession.setActionHandler("pause", () => {
-      this.play();
-      this.cd.detectChanges();
+      if (!this.error) {
+        this.play();
+        this.cd.detectChanges();
+      } else {
+        this.running = false;
+      }
     });
     navigator.mediaSession.setActionHandler("stop", () => {
       this.stop();

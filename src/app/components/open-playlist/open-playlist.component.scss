@@ -4,6 +4,9 @@ h1 {
 
 .playlist-list {
     margin-top: 20px;
+    margin-bottom: 10px;
+    max-height: calc(100vh - 205px);
+    overflow: auto;
 
     table {
         border-collapse: collapse;
@@ -20,6 +23,14 @@ h1 {
 
             td {
                 cursor: pointer;
+                .delete-icon {
+                    width: 30px;
+                    height: 30px;
+                    svg {
+                        width: 30px;
+                        height: 30px;
+                    }
+                }
             }
 
             .playlist-name {

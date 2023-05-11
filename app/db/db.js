@@ -64,6 +64,10 @@ electron_1.ipcMain.on("playlist-create", (event, args) => {
         });
     });
 });
+electron_1.ipcMain.on("playlist-remove", (event, args) => {
+    removePlaylist(args.id).then(() => {
+    });
+});
 electron_1.ipcMain.on("songs-add", (event, args) => {
     var promises = [];
     for (let s of args.songs) {
@@ -113,6 +117,17 @@ function saveLastPlaylist(playlistId) {
         let statement = db.prepare("UPDATE app_config SET lastPlaylistId = ?");
         statement.run([playlistId], (resp, err) => {
             resolve("");
+        });
+    });
+}
+function removePlaylist(id) {
+    return new Promise((resolve, reject) => {
+        let statement = db.prepare("DELETE FROM playlist WHERE id = ?");
+        statement.run([id], (res, err) => {
+            let songsStatement = db.prepare("DELETE FROM song WHERE playlistId = ?");
+            songsStatement.run([id], (resSong, errSong) => {
+                resolve(1);
+            });
         });
     });
 }

@@ -21,12 +21,17 @@ export class OpenPlaylistComponent implements OnInit {
   getPlaylists() {
     this.playlistService.getPlaylists().then(playlists => {
       this.playlists = playlists as Playlist[];
-      this.playlists.sort((a,b) => a.created - b.created);
+      this.playlists.sort((a, b) => a.created - b.created);
     })
   }
 
   openPlaylist(playlist: Playlist) {
     this.router.navigateByUrl(`playlists/${playlist.id}`);
+  }
+
+  deletePlaylist(playlist: Playlist) {
+    this.playlistService.removePlaylist(playlist.id);
+    this.playlists.splice(this.playlists.findIndex(x => x.id == playlist.id), 1);
   }
 
 }

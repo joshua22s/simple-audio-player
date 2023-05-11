@@ -1,5 +1,5 @@
 import { ConnectedPosition, Overlay } from '@angular/cdk/overlay';
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { PlayerAction } from '../../models/playerAction';
 import { Playlist } from '../../models/playlist';
@@ -16,11 +16,15 @@ export class PlaylistComponent implements OnInit, OnDestroy {
 
   @Input("playlist") playlist: Playlist;
 
+  @ViewChild("listWrapper") listWrapper: ElementRef;
+
   selectedSong: Song = new Song();
 
   contextmenu: boolean = false;
   triggerOrigin: any;
   contextmenuSong: Song = new Song();
+
+  addSongsLoading: boolean = false;
 
   private selectedSongSubscription: Subscription;
   private playlistActionSubscription: Subscription;
@@ -35,12 +39,19 @@ export class PlaylistComponent implements OnInit, OnDestroy {
     }
   ];
 
-  constructor(private playlistService: PlaylistService, private overlay: Overlay, private audioService: AudioService) { }
+  constructor(private playlistService: PlaylistService, private overlay: Overlay, private audioService: AudioService, private cd: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.playlistService.setSelectedPlaylist(this.playlist);
     this.selectedSongSubscription = this.playlistService.selectedSong.subscribe(song => {
       this.selectedSong = song;
+      if (this.listWrapper) {
+        this.listWrapper.nativeElement.querySelector(`#A${song.id}`).scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        setTimeout(() => {
+          this.listWrapper.nativeElement.querySelector(`#A${song.id}`).scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 2000);
+      }
     });
     this.playlistActionSubscription = this.playlistService.songAction.subscribe(action => {
       if (action) {
@@ -61,13 +72,14 @@ export class PlaylistComponent implements OnInit, OnDestroy {
             }
             this.playlistService.setSelectedSong(this.playlist.songs[newIndex]);
             break;
-          }
         }
-      });
-      this.playlistService.setSelectedSong(this.playlist.songs.find(s => s.id == this.playlist.lastSongPlayedId));
-      setTimeout(() => {
-        this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
-      }, 10);
+      }
+      this.cd.detectChanges();
+    });
+    this.playlistService.setSelectedSong(this.playlist.songs.find(s => s.id == this.playlist.lastSongPlayedId));
+    setTimeout(() => {
+      this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
+    }, 10);
   }
 
   ngOnDestroy(): void {
@@ -78,7 +90,7 @@ export class PlaylistComponent implements OnInit, OnDestroy {
       this.playlistActionSubscription.unsubscribe();
     }
   }
-  
+
   selectSong(song: Song) {
     this.playlistService.triggerSongAction(PlayerAction.STOP);
     this.audioService.pauseAudio();
@@ -109,7 +121,11 @@ export class PlaylistComponent implements OnInit, OnDestroy {
   }
 
   public addSongs() {
+    setTimeout(() => {
+      this.addSongsLoading = true;
+    }, 2000);
     this.playlistService.openFileDialog().then((files) => {
+      this.addSongsLoading = false;
       this.playlist.songs = this.playlist.songs.concat(this.playlistService.addSongs(this.convertFilesToSongs(files), this.playlist.id));
     });
   }
@@ -127,6 +143,7 @@ export class PlaylistComponent implements OnInit, OnDestroy {
       songs.push(s);
       curIndex++;
     }
+    songs.sort((a, b) => a.name.localeCompare(b.name));
     return songs;
   }
 
