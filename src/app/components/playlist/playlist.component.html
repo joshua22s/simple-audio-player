@@ -1,18 +1,11 @@
 <div class="playlist-wrapper container" (click)="disableContextMenu()" oncontextmenu="return false;">
     <h1 style="margin-left: 10px;">{{playlist.name}}</h1>
-    <div class="add-button" (click)="addSongs()">+</div>
-    <div class="lds-ring" *ngIf="addSongsLoading">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-    </div>
     <div class="list-wrapper" #listWrapper>
         <div class="list-group" *ngFor="let group of playlist.groups">
-            <p>{{group.name}}</p>
+            <p style="margin-left: 10px; font-weight: 500;">{{group.name}}</p>
             <app-playlist-item [item]="item" *ngFor="let item of group.items" cdkOverlayOrigin
-            #trigger="cdkOverlayOrigin" (contextmenu)="onRightClick(trigger, item)" [id]="'A' + item.id"
-            [selected]="selectedItem && selectedItem.id && selectedItem.id == item.id && selectedItem.playlistItemGroupId == item.playlistItemGroupId ? true : false"
+                #trigger="cdkOverlayOrigin" [id]="'A' + item.id + '-' + item.playlistItemGroupId"
+                [selected]="selectedItem && selectedItem.id && selectedItem.id == item.id && selectedItem.playlistItemGroupId == item.playlistItemGroupId ? true : false"
                 (click)="selectItem(item)"></app-playlist-item>
         </div>
     </div>

@@ -1,7 +1,7 @@
 {
-  "name": "simple-audio-player",
+  "name": "pieter-player",
   "version": "1.0.0",
-  "description": "Simple Audio Player",
+  "description": "Pieter Player",
   "homepage": "https://avits.nl",
   "author": {
     "name": "Joshua Schers",

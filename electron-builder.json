@@ -1,6 +1,6 @@
 {
   "asar": false,
-  "productName": "Simple Audio Player",
+  "productName": "Pieter Player",
   "directories": {
     "output": "release/"
   },

@@ -5,6 +5,7 @@ import { Song } from '../../models/song';
 import { AudioService } from '../../services/audio/audio.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
 import { CountdownComponent } from '../helpers/countdown/countdown.component';
+import { PlaylistItem } from '../../models/playlistItem';
 
 @Component({
   selector: 'app-player',
@@ -21,7 +22,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   counter: CountdownComponent;
 
   song: Song;
-
+  item: PlaylistItem;
   running: boolean = false;
   paused: boolean = false;
   error: boolean = false;
@@ -36,6 +37,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       if (item) {
         this.error = false;
         this.song = item.song;
+        this.item = item;
         navigator.mediaSession.metadata = new MediaMetadata({
           title: this.song.name
         })
@@ -52,8 +54,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
       switch (action) {
         case PlayerAction.EXTERNAL_PLAY:
           this.error = false;
-          this.play();
+          this.play(false, this.playlistService.currentSongPosition ? this.playlistService.currentSongPosition : 0);
           break;
+          case PlayerAction.EXIT:
+            this.playlistService.currentSongPosition = this.counter.duration - this.counter.timeLeft;
+            break;
       }
     });
     this.setMediaSessionActions();
@@ -133,7 +138,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  play(auto?: boolean) {
+  play(auto?: boolean, position?: number) {
     this.error = false;
     if (!this.running) {
       //play
@@ -146,10 +151,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
           this.paused = false;
         } else {
           this.playlistService.saveLastItem();
-          this.audioService.playAudio(this.song, this.playlistService.getSelectedPlaylist().songsFolder).then(() => {
+          this.audioService.playAudio(this.song, this.playlistService.getSelectedPlaylist().songsFolder, position).then(() => {
             this.running = true;
             setTimeout(() => {
-              this.counter.start(!this.paused);
+              this.counter.start(!this.paused, position);
               this.paused = false;
             }, 800);
           }).catch(() => {

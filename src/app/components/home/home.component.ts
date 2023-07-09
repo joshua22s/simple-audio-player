@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { GeneralService } from '../../services/general/general.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
+import { PlayerAction } from '../../models/playerAction';
 
 @Component({
   selector: 'app-home',
@@ -22,9 +23,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
     this.closeSubscription = this.generalService.onAppClose().subscribe(() => {
-      this.playlistService.saveLastItem().then(() => {
-        this.generalService.closeApp();
-      });
+      this.playlistService.triggerSongAction(PlayerAction.EXIT);
+      setTimeout(() => {
+        this.playlistService.saveLastItem().then(() => {
+          this.generalService.closeApp();
+        });
+      }, 10);
     });
   }
 

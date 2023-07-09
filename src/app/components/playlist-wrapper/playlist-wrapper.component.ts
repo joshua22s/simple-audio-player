@@ -51,6 +51,8 @@ export class PlaylistWrapperComponent implements OnInit {
     d.name = p.name;
     d.created = p.created;
     d.lastItemPlayedId = p.lastItemPlayedId;
+    d.lastItemGroupPlayedId = p.lastItemGroupPlayedId;
+    d.lastItemPlayedPositionInSong = p.lastItemPlayedPositionInSong;
     d.lastPlayed = p.lastPlayed;
     d.songsFolder = p.songsFolder;
     var listGroup: PlaylistItemGroup;
@@ -76,12 +78,18 @@ export class PlaylistWrapperComponent implements OnInit {
       }
     }
     var i = 0;
+    var listIndex = 1;
     for (let group of groups) {
       var lg = JSON.parse(JSON.stringify(listGroup)) as PlaylistItemGroup;
+      lg.name = lg.name + " " + (listIndex);
       lg.orderIndex = i;
       lg.id = i * 10 + "";
       i++;
+      for (let i of lg.items) {
+        i.playlistItemGroup.name = lg.name;
+      }
       d.groups.push(lg);
+      listIndex++;
       var g = JSON.parse(JSON.stringify(group)) as PlaylistItemGroup;
       g.orderIndex = i;
       d.groups.push(g);
@@ -91,9 +99,9 @@ export class PlaylistWrapperComponent implements OnInit {
       for (let item of group.items) {
         item.playlistItemGroupId = group.id;
       }
-      group.items.sort((a,b) => a.orderIndex - b.orderIndex);
+      group.items.sort((a, b) => a.orderIndex - b.orderIndex);
     }
-    d.groups.sort((a,b) => a.orderIndex - b.orderIndex);
+    d.groups.sort((a, b) => a.orderIndex - b.orderIndex);
 
     return d;
   }

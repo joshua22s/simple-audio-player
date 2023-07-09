@@ -10,7 +10,7 @@ export class CountdownComponent implements OnInit, OnChanges {
   @Input("duration") duration: number;
   @Output("onTick") onTickEvent = new EventEmitter<any>();
 
-  private timeLeft: number = 0;
+  public timeLeft: number = 0;
   private countdownInterval: any;
   private countdownTimeout: any;
 
@@ -33,9 +33,12 @@ export class CountdownComponent implements OnInit, OnChanges {
     this.formatText();
   }
 
-  start(fromBegin: boolean) {
+  start(fromBegin: boolean, duration?: number) {
     if (fromBegin) {
       this.timeLeft = this.duration;
+    }
+    if (duration) {
+      this.timeLeft = this.duration - duration;
     }
     this.onTickEvent.emit({ action: 'start' });
     clearInterval(this.countdownInterval);
@@ -52,7 +55,7 @@ export class CountdownComponent implements OnInit, OnChanges {
       this.onTickEvent.emit({ action: 'end' });
       this.timeLeft = 0;
       this.formatText();
-    }, this.duration);
+    }, this.timeLeft);
 
   }
 

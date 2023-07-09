@@ -18,6 +18,7 @@ export class PlaylistService {
 
   private songActionDatasource = new BehaviorSubject<PlayerAction>(null);
   songAction = this.songActionDatasource.asObservable();
+  public currentSongPosition = 0;
 
   constructor(private ipcService: IpcService) { }
 
@@ -89,7 +90,7 @@ export class PlaylistService {
   saveLastItem(): Promise<any> {
     return new Promise((res, rej) => {
       if (this.selectedPlaylist && this.selectedPlaylist.id && this.selectedItemDatasource.value && this.selectedItemDatasource.value.id) {
-        this.ipcService.send("save-last-item", { playlistId: this.selectedPlaylist.id, itemId: this.selectedItemDatasource.value.id, itemGroupId: this.selectedItemDatasource.value.playlistItemGroupId });
+        this.ipcService.send("save-last-item", { playlistId: this.selectedPlaylist.id, itemId: this.selectedItemDatasource.value.id, itemGroupId: this.selectedItemDatasource.value.playlistItemGroupId, positionInSong: this.currentSongPosition });
         var sub = (event, done) => {
           res(done);
           this.ipcService.removeListener("save-last-item-send", sub);

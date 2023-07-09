@@ -2,7 +2,7 @@
     <ng-container *ngIf="song && song.duration">
         <!-- <div class="top-bar"> -->
         <div class="title-wrapper">
-            <span class="title">{{song.name}}</span>
+            <span class="title">{{item.playlistItemGroup.name}} - {{song.name}}</span>
             <span *ngIf="error" class="error">bestand niet gevonden of ongeldig!</span>
         </div>
         <!-- <span style="flex: 1;"></span> -->

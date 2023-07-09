@@ -7,6 +7,8 @@ export class Playlist {
     items: PlaylistItem[];
     lastPlayed: PlaylistItem;
     lastItemPlayedId: string;
+    lastItemGroupPlayedId: string;
+    lastItemPlayedPositionInSong: number;
     created: number;
     songsFolder: string;
     songCount: number;

@@ -98,8 +98,8 @@ ipcMain.on("playlist-create", (event, args) => {
 
 ipcMain.on("save-last-item", (event, args) => {
     var promises = [];
-    promises.push(savePlaylistLastItemPlayed(args.playlistId, args.itemId, args.itemGroupId));
-    promises.push(saveLastPlaylist(args.playlistId));
+    promises.push(savePlaylistLastItemPlayed(args.playlistId, args.itemId, args.itemGroupId, args.positionInSong));
+    // promises.push(saveLastPlaylist(args.playlistId));
     Promise.all(promises).then(() => {
         mainWindow.webContents.send('save-last-item-send', 'ok');
     });
@@ -117,10 +117,10 @@ ipcMain.on("save-last-item", (event, args) => {
 //     })
 // }
 
-function savePlaylistLastItemPlayed(playlistId: string, itemId: string, itemGroupId: string): Promise<any> {
+function savePlaylistLastItemPlayed(playlistId: string, itemId: string, itemGroupId: string, positionInSong: number): Promise<any> {
     return new Promise((resolve, reject) => {
-        let statement = db.prepare("UPDATE playlist SET lastItemPlayedId = ?, lastItemGroupPlayedId = ? WHERE id = ?");
-        statement.run([itemId, itemGroupId, playlistId], (resp, err) => {
+        let statement = db.prepare("UPDATE playlist SET lastItemPlayedId = ?, lastItemGroupPlayedId = ?, lastItemPlayedPositionInSong = ? WHERE id = ?");
+        statement.run([itemId, itemGroupId, positionInSong, playlistId], (resp, err) => {
             resolve("");
         });
     });
@@ -143,6 +143,8 @@ function convertRowToPlaylist(row: any): Playlist {
     p.songsFolder = row.songs_folder;
     p.created = row.created;
     p.lastItemPlayedId = row.lastItemPlayedId;
+    p.lastItemGroupPlayedId = row.lastItemGroupPlayedId;
+    p.lastItemPlayedPositionInSong = row.lastItemPlayedPositionInSong;
     // p.songCount = row.songCount;
     return p
 }

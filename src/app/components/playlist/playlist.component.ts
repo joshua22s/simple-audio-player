@@ -44,13 +44,13 @@ export class PlaylistComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.playlistService.setSelectedPlaylist(this.playlist);
-    this.selectedItemSubscription = this.playlistService.selectedItem.subscribe(song => {
-      this.selectedItem = song;
+    this.selectedItemSubscription = this.playlistService.selectedItem.subscribe(item => {
+      this.selectedItem = item;
       if (this.listWrapper) {
-        this.listWrapper.nativeElement.querySelector(`#A${song.id}`).scrollIntoView({ behavior: "smooth", block: "center" });
+        this.listWrapper.nativeElement.querySelector(`#A${item.id}-${item.playlistItemGroupId}`).scrollIntoView({ behavior: "smooth", block: "center" });
       } else {
         setTimeout(() => {
-          this.listWrapper.nativeElement.querySelector(`#A${song.id}`).scrollIntoView({ behavior: "smooth", block: "center" });
+          this.listWrapper.nativeElement.querySelector(`#A${item.id}-${item.playlistItemGroupId}`).scrollIntoView({ behavior: "smooth", block: "center" });
         }, 2000);
       }
     });
@@ -95,10 +95,13 @@ export class PlaylistComponent implements OnInit, OnDestroy {
       }
       this.cd.detectChanges();
     });
-    // this.playlistService.setSelectedSong(this.playlist.songs.find(s => s.id == this.playlist.lastSongPlayedId));
-    // setTimeout(() => {
-    //   this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
-    // }, 10);
+    this.playlistService.setSelectedItem(this.playlist.groups.find(x => x.id == this.playlist.lastItemGroupPlayedId).items.find(y => y.id == this.playlist.lastItemPlayedId));
+    if (this.playlist.lastItemPlayedPositionInSong) {
+      this.playlistService.currentSongPosition = this.playlist.lastItemPlayedPositionInSong;
+    }
+    setTimeout(() => {
+      this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
+    }, 10);
   }
 
   ngOnDestroy(): void {
@@ -114,6 +117,8 @@ export class PlaylistComponent implements OnInit, OnDestroy {
     this.playlistService.triggerSongAction(PlayerAction.STOP);
     this.audioService.pauseAudio();
     this.playlistService.setSelectedItem(item);
+    this.playlistService.currentSongPosition = 0;
+    this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
   }
 
   onRightClick(trigger, song: Song) {

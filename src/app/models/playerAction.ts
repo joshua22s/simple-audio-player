@@ -5,5 +5,6 @@ export enum PlayerAction {
     STOP,
     NEXT,
     PREVIOUS,
-    EXTERNAL_PLAY
+    EXTERNAL_PLAY,
+    EXIT
 }
