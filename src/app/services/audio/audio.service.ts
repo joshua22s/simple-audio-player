@@ -20,7 +20,7 @@ export class AudioService {
 
   constructor() { }
 
-  playAudio(song: Song): Promise<any> {
+  playAudio(song: Song, folderPath: string): Promise<any> {
     return new Promise((resolve, reject) => {
       if (this.audio) {
         this.audio.pause();
@@ -38,7 +38,7 @@ export class AudioService {
       this.audio.addEventListener("timeupdate", () => {
         this.audioTickDatasource.next({ current: this.audio.currentTime, total: this.audio.duration });
       });
-      this.audio.src = song.path;
+      this.audio.src = `${folderPath}\\${song.path}`
       this.audio.load();
       this.audio.play();
     });

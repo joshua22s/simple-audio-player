@@ -4,6 +4,7 @@ import { PlayerAction } from '../../models/playerAction';
 import { Playlist } from '../../models/playlist';
 import { Song } from '../../models/song';
 import { IpcService } from '../ipc/ipc.service';
+import { PlaylistItem } from '../../models/playlistItem';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +13,8 @@ export class PlaylistService {
 
   private selectedPlaylist: Playlist;
 
-  private selectedSongDatasource = new BehaviorSubject<Song>(new Song());
-  selectedSong = this.selectedSongDatasource.asObservable();
+  private selectedItemDatasource = new BehaviorSubject<PlaylistItem>(new PlaylistItem());
+  selectedItem = this.selectedItemDatasource.asObservable();
 
   private songActionDatasource = new BehaviorSubject<PlayerAction>(null);
   songAction = this.songActionDatasource.asObservable();
@@ -24,8 +25,12 @@ export class PlaylistService {
     this.selectedPlaylist = playlist;
   }
 
-  setSelectedSong(song: Song) {
-    this.selectedSongDatasource.next(song);
+  getSelectedPlaylist() {
+    return this.selectedPlaylist;
+  }
+
+  setSelectedItem(item: PlaylistItem) {
+    this.selectedItemDatasource.next(item);
   }
 
   triggerSongAction(action: PlayerAction) {
@@ -81,15 +86,15 @@ export class PlaylistService {
     this.ipcService.send("songs-remove", { songs: songs });
   }
 
-  saveLastSong(): Promise<any> {
+  saveLastItem(): Promise<any> {
     return new Promise((res, rej) => {
-      if (this.selectedPlaylist && this.selectedPlaylist.id && this.selectedSongDatasource.value && this.selectedSongDatasource.value.id) {
-        this.ipcService.send("save-last-song", { playlistId: this.selectedPlaylist.id, songId: this.selectedSongDatasource.value.id });
+      if (this.selectedPlaylist && this.selectedPlaylist.id && this.selectedItemDatasource.value && this.selectedItemDatasource.value.id) {
+        this.ipcService.send("save-last-item", { playlistId: this.selectedPlaylist.id, itemId: this.selectedItemDatasource.value.id, itemGroupId: this.selectedItemDatasource.value.playlistItemGroupId });
         var sub = (event, done) => {
           res(done);
-          this.ipcService.removeListener("save-last-song-send", sub);
+          this.ipcService.removeListener("save-last-item-send", sub);
         }
-        this.ipcService.on("save-last-song-send", sub);
+        this.ipcService.on("save-last-item-send", sub);
       } else {
         res('ok');
       }

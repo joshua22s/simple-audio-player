@@ -6,6 +6,7 @@ import { Playlist } from '../../models/playlist';
 import { Song } from '../../models/song';
 import { AudioService } from '../../services/audio/audio.service';
 import { PlaylistService } from '../../services/playlist/playlist.service';
+import { PlaylistItem } from '../../models/playlistItem';
 
 @Component({
   selector: 'app-playlist',
@@ -18,7 +19,7 @@ export class PlaylistComponent implements OnInit, OnDestroy {
 
   @ViewChild("listWrapper") listWrapper: ElementRef;
 
-  selectedSong: Song = new Song();
+  selectedItem: PlaylistItem = new PlaylistItem();
 
   contextmenu: boolean = false;
   triggerOrigin: any;
@@ -26,7 +27,7 @@ export class PlaylistComponent implements OnInit, OnDestroy {
 
   addSongsLoading: boolean = false;
 
-  private selectedSongSubscription: Subscription;
+  private selectedItemSubscription: Subscription;
   private playlistActionSubscription: Subscription;
 
   connectedPositions: ConnectedPosition[] = [
@@ -43,8 +44,8 @@ export class PlaylistComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.playlistService.setSelectedPlaylist(this.playlist);
-    this.selectedSongSubscription = this.playlistService.selectedSong.subscribe(song => {
-      this.selectedSong = song;
+    this.selectedItemSubscription = this.playlistService.selectedItem.subscribe(song => {
+      this.selectedItem = song;
       if (this.listWrapper) {
         this.listWrapper.nativeElement.querySelector(`#A${song.id}`).scrollIntoView({ behavior: "smooth", block: "center" });
       } else {
@@ -57,44 +58,62 @@ export class PlaylistComponent implements OnInit, OnDestroy {
       if (action) {
         switch (action) {
           case PlayerAction.NEXT:
-            var curIndex = this.playlist.songs.findIndex(s => s.id == this.selectedSong.id);
-            var newIndex = 0;
-            if (curIndex + 1 < this.playlist.songs.length) {
-              newIndex = curIndex + 1;
+            var g = this.playlist.groups.find(x => x.id == this.selectedItem.playlistItemGroupId);
+            if (g) {
+              var curIndex = g.items.findIndex(s => s.id == this.selectedItem.id);
+              if (curIndex + 1 < g.items.length) {
+                this.playlistService.setSelectedItem(g.items[curIndex + 1]);
+              } else {
+                var curGroupIndex = this.playlist.groups.findIndex(pg => pg.id == g.id);
+                if (curGroupIndex + 1 < this.playlist.groups.length) {
+                  var nextGroup = this.playlist.groups[curGroupIndex + 1];
+                  this.playlistService.setSelectedItem(nextGroup.items[0]);
+                } else {
+                  this.playlistService.setSelectedItem(this.playlist.groups[0].items[0]);
+                }
+              }
             }
-            this.playlistService.setSelectedSong(this.playlist.songs[newIndex]);
             break;
           case PlayerAction.PREVIOUS:
-            var curIndex = this.playlist.songs.findIndex(s => s.id == this.selectedSong.id);
-            var newIndex = 0;
-            if (curIndex > 0) {
-              newIndex = curIndex - 1;
+            var g = this.playlist.groups.find(x => x.id == this.selectedItem.playlistItemGroupId);
+            if (g) {
+              var curIndex = g.items.findIndex(s => s.id == this.selectedItem.id);
+              if (curIndex > 0) {
+                this.playlistService.setSelectedItem(g.items[curIndex - 1]);
+              } else {
+                var curGroupIndex = this.playlist.groups.findIndex(pg => pg.id == g.id);
+                if (curGroupIndex > 0) {
+                  var prevGroup = this.playlist.groups[curGroupIndex - 1];
+                  this.playlistService.setSelectedItem(prevGroup.items[prevGroup.items.length - 1]);
+                } else {
+                  this.playlistService.setSelectedItem(this.playlist.groups[this.playlist.groups.length - 1].items[this.playlist.groups[this.playlist.groups.length - 1].items.length - 1]);
+                }
+              }
             }
-            this.playlistService.setSelectedSong(this.playlist.songs[newIndex]);
             break;
         }
       }
       this.cd.detectChanges();
     });
-    this.playlistService.setSelectedSong(this.playlist.songs.find(s => s.id == this.playlist.lastSongPlayedId));
-    setTimeout(() => {
-      this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
-    }, 10);
+    // this.playlistService.setSelectedSong(this.playlist.songs.find(s => s.id == this.playlist.lastSongPlayedId));
+    // setTimeout(() => {
+    //   this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
+    // }, 10);
   }
 
   ngOnDestroy(): void {
-    if (this.selectedSongSubscription) {
-      this.selectedSongSubscription.unsubscribe();
+    if (this.selectedItemSubscription) {
+      this.selectedItemSubscription.unsubscribe();
     }
     if (this.playlistActionSubscription) {
       this.playlistActionSubscription.unsubscribe();
     }
   }
 
-  selectSong(song: Song) {
+  selectItem(item: PlaylistItem) {
     this.playlistService.triggerSongAction(PlayerAction.STOP);
     this.audioService.pauseAudio();
-    this.playlistService.setSelectedSong(song);
+    this.playlistService.setSelectedItem(item);
   }
 
   onRightClick(trigger, song: Song) {
@@ -106,44 +125,44 @@ export class PlaylistComponent implements OnInit, OnDestroy {
     this.contextmenu = false;
   }
   onMenuClick(event) {
-    this.disableContextMenu();
-    this.playlistService.removeSongs([event.song]);
-    var songIndex = this.playlist.songs.findIndex(s => s.id == event.song.id);
-    this.playlist.songs.splice(songIndex, 1);
-    if (this.selectedSong && this.selectedSong.id) {
-      if (event.song.id == this.selectedSong.id) {
-        if (this.playlist.songs.length < songIndex + 1) {
-          songIndex = this.playlist.songs.length - 1;
-        }
-      }
-      this.playlistService.setSelectedSong(this.playlist.songs[songIndex]);
-    }
+    // this.disableContextMenu();
+    // this.playlistService.removeSongs([event.song]);
+    // var songIndex = this.playlist.songs.findIndex(s => s.id == event.song.id);
+    // this.playlist.songs.splice(songIndex, 1);
+    // if (this.selectedSong && this.selectedSong.id) {
+    //   if (event.song.id == this.selectedSong.id) {
+    //     if (this.playlist.songs.length < songIndex + 1) {
+    //       songIndex = this.playlist.songs.length - 1;
+    //     }
+    //   }
+    //   this.playlistService.setSelectedSong(this.playlist.songs[songIndex]);
+    // }
   }
 
   public addSongs() {
-    setTimeout(() => {
-      this.addSongsLoading = true;
-    }, 2000);
-    this.playlistService.openFileDialog().then((files) => {
-      this.addSongsLoading = false;
-      this.playlist.songs = this.playlist.songs.concat(this.playlistService.addSongs(this.convertFilesToSongs(files), this.playlist.id));
-    });
+    // setTimeout(() => {
+    //   this.addSongsLoading = true;
+    // }, 2000);
+    // this.playlistService.openFileDialog().then((files) => {
+    //   this.addSongsLoading = false;
+    //   this.playlist.items = this.playlist.songs.concat(this.playlistService.addSongs(this.convertFilesToSongs(files), this.playlist.id));
+    // });
   }
 
   private convertFilesToSongs(data: any): Song[] {
     let songs: Song[] = [];
-    var curIndex = this.playlist.songs.length;
-    for (let d of data) {
-      var s = new Song();
-      s.path = d.path;
-      s.duration = d.duration;
-      var pathSplit = s.path.split("\\");
-      s.name = pathSplit[pathSplit.length - 1].split(".")[0];
-      s.orderIndex = curIndex;
-      songs.push(s);
-      curIndex++;
-    }
-    songs.sort((a, b) => a.name.localeCompare(b.name));
+    // var curIndex = this.playlist.songs.length;
+    // for (let d of data) {
+    //   var s = new Song();
+    //   s.path = d.path;
+    //   s.duration = d.duration;
+    //   var pathSplit = s.path.split("\\");
+    //   s.name = pathSplit[pathSplit.length - 1].split(".")[0];
+    //   s.orderIndex = curIndex;
+    //   songs.push(s);
+    //   curIndex++;
+    // }
+    // songs.sort((a, b) => a.name.localeCompare(b.name));
     return songs;
   }
 

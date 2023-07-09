@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { Song } from '../../../models/song';
 import { PlaylistService } from '../../../services/playlist/playlist.service';
 import { CountdownComponent } from '../../helpers/countdown/countdown.component';
+import { PlaylistItem } from '../../../models/playlistItem';
 
 
 @Component({
@@ -12,7 +13,7 @@ import { CountdownComponent } from '../../helpers/countdown/countdown.component'
 })
 export class PlaylistItemComponent implements OnInit {
 
-  @Input("song") song: Song;
+  @Input("item") item: PlaylistItem;
   @Input("selected") selected: boolean = false;
 
   @ViewChild("songCountdown")
@@ -21,6 +22,6 @@ export class PlaylistItemComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.song.durationInMillis = this.song.duration * 1000;
+    this.item.song.durationInMillis = this.item.song.duration * 1000;
   }
 }

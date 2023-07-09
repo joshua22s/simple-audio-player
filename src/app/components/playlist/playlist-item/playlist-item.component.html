@@ -1,6 +1,6 @@
-<div *ngIf="song" class="song-wrapper" [class.song-selected]="selected">
-    <span class="title">{{song.name}}</span>
+<div *ngIf="item" class="song-wrapper" [class.song-selected]="selected">
+    <span class="title">{{item.song.name}}</span>
     <span class="duration">
-        <app-countdown [duration]="song.durationInMillis" #songCountdown></app-countdown>
+        <app-countdown [duration]="item.song.durationInMillis" #songCountdown></app-countdown>
     </span>
 </div>

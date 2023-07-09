@@ -22,7 +22,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
     this.closeSubscription = this.generalService.onAppClose().subscribe(() => {
-      this.playlistService.saveLastSong().then(() => {
+      this.playlistService.saveLastItem().then(() => {
         this.generalService.closeApp();
       });
     });

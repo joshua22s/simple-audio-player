@@ -8,6 +8,8 @@ const fs_1 = require("fs");
 const song_1 = require("../models/song");
 const playlist_1 = require("../models/playlist");
 const path = require("path");
+const playlistItem_1 = require("../models/playlistItem");
+const playlistItemGroup_1 = require("../models/playlistItemGroup");
 var mainWindow;
 var mainApp;
 var dbPath;
@@ -27,27 +29,28 @@ electron_1.ipcMain.on("config-get", (event, args) => {
 });
 electron_1.ipcMain.on("playlist-get", (event, args) => {
     db.get(`SELECT * FROM playlist WHERE id = ?`, [args], (err, row) => {
-        getPlaylistSongs(args).then(songs => {
+        getPlaylistItems(args).then(items => {
             var playlist = convertRowToPlaylist(row);
-            playlist.songs = songs;
+            playlist.items = items;
             mainWindow.webContents.send("playlist-get-send", playlist);
         });
     });
 });
-function getPlaylistSongs(playlistId) {
+function getPlaylistItems(playlistId) {
     return new Promise((resolve, reject) => {
-        var songs = [];
-        db.each(`SELECT * FROM song WHERE playlistId = ?`, [playlistId], (err, row) => {
-            songs.push(convertRowToSong(row));
+        var items = [];
+        db.each(`SELECT pi.id as p_id, pi.playlistItemGroupId as p_playlistItemGroupId, pi.playlistId as p_playlistId, pi.orderIndex as p_orderIndex, s.id as s_id, s.name as s_name, s.path as s_path, s.duration as s_duration, pig.id as pig_id, pig.name as pig_name, pig.orderIndex as pig_orderIndex FROM playlist_item pi JOIN song s ON s.id = pi.songId JOIN playlist_item_group pig ON pig.id = pi.playlistItemGroupId WHERE pi.playlistId = ?`, [playlistId], (err, row) => {
+            items.push(convertRowToPlaylistItem(row));
         }, (err, count) => {
-            resolve(songs);
+            resolve(items);
+            // console.log(items);
         });
     });
 }
 electron_1.ipcMain.on("playlist-get-all", (event, args) => {
     var promises = [];
     var playlists = [];
-    db.each("SELECT p.id as id, p.name as name, p.created as created, p.lastSongPlayedId as lastSongPlayedId FROM playlist p", (err, row) => {
+    db.each("SELECT p.id as id, p.name as name, p.created as created, p.lastItemPlayedId as lastItemPlayedId FROM playlist p", (err, row) => {
         playlists.push(convertRowToPlaylist(row));
     }, (err, count) => {
         mainWindow.webContents.send('playlist-get-all-send', playlists);
@@ -64,50 +67,50 @@ electron_1.ipcMain.on("playlist-create", (event, args) => {
         });
     });
 });
-electron_1.ipcMain.on("playlist-remove", (event, args) => {
-    removePlaylist(args.id).then(() => {
-    });
-});
-electron_1.ipcMain.on("songs-add", (event, args) => {
+// ipcMain.on("playlist-remove", (event, args) => {
+//     removePlaylist(args.id).then(() => {
+//     });
+// });
+// ipcMain.on("songs-add", (event, args) => {
+//     var promises = [];
+//     for (let s of args.songs) {
+//         promises.push(saveSong(s.path, s.name, s.duration, s.orderIndex, args.playlistId));
+//     }
+//     Promise.all(promises).then((songs) => {
+//         event.returnValue = songs;
+//     });
+// });
+// ipcMain.on("songs-remove", (event, args) => {
+//     var promises = [];
+//     for (let s of args.songs) {
+//         promises.push(removeSong(s.id));
+//     }
+//     Promise.all(promises).then(() => {
+//     });
+// });
+electron_1.ipcMain.on("save-last-item", (event, args) => {
     var promises = [];
-    for (let s of args.songs) {
-        promises.push(saveSong(s.path, s.name, s.duration, s.orderIndex, args.playlistId));
-    }
-    Promise.all(promises).then((songs) => {
-        event.returnValue = songs;
-    });
-});
-electron_1.ipcMain.on("songs-remove", (event, args) => {
-    var promises = [];
-    for (let s of args.songs) {
-        promises.push(removeSong(s.id));
-    }
-    Promise.all(promises).then(() => {
-    });
-});
-electron_1.ipcMain.on("save-last-song", (event, args) => {
-    var promises = [];
-    promises.push(savePlaylistLastSongPlayed(args.playlistId, args.songId));
+    promises.push(savePlaylistLastItemPlayed(args.playlistId, args.itemId, args.itemGroupId));
     promises.push(saveLastPlaylist(args.playlistId));
     Promise.all(promises).then(() => {
-        mainWindow.webContents.send('save-last-song-send', 'ok');
+        mainWindow.webContents.send('save-last-item-send', 'ok');
     });
 });
-function saveSong(path, name, duration, orderIndex, playlistId) {
+// function saveSong(path: string, name: string, duration: number, orderIndex: number, playlistId: string): Promise<Song> {
+//     return new Promise((resolve, reject) => {
+//         var newId = uuid().toString();
+//         let statement = db.prepare("INSERT INTO song(id, name, path, duration, orderIndex, playlistId) VALUES(?,?,?,?,?,?)")
+//         statement.run([newId, name, path, duration, orderIndex, playlistId], (resp, err) => {
+//             db.get('SELECT * FROM song WHERE id = ?', [newId], (err: any, row: any) => {
+//                 resolve(convertRowToSong(row));
+//             });
+//         });
+//     })
+// }
+function savePlaylistLastItemPlayed(playlistId, itemId, itemGroupId) {
     return new Promise((resolve, reject) => {
-        var newId = (0, uuid_1.v4)().toString();
-        let statement = db.prepare("INSERT INTO song(id, name, path, duration, orderIndex, playlistId) VALUES(?,?,?,?,?,?)");
-        statement.run([newId, name, path, duration, orderIndex, playlistId], (resp, err) => {
-            db.get('SELECT * FROM song WHERE id = ?', [newId], (err, row) => {
-                resolve(convertRowToSong(row));
-            });
-        });
-    });
-}
-function savePlaylistLastSongPlayed(playlistId, songId) {
-    return new Promise((resolve, reject) => {
-        let statement = db.prepare("UPDATE playlist SET lastSongPlayedId = ? WHERE id = ?");
-        statement.run([songId, playlistId], (resp, err) => {
+        let statement = db.prepare("UPDATE playlist SET lastItemPlayedId = ?, lastItemGroupPlayedId = ? WHERE id = ?");
+        statement.run([itemId, itemGroupId, playlistId], (resp, err) => {
             resolve("");
         });
     });
@@ -120,35 +123,35 @@ function saveLastPlaylist(playlistId) {
         });
     });
 }
-function removePlaylist(id) {
-    return new Promise((resolve, reject) => {
-        let statement = db.prepare("DELETE FROM playlist WHERE id = ?");
-        statement.run([id], (res, err) => {
-            let songsStatement = db.prepare("DELETE FROM song WHERE playlistId = ?");
-            songsStatement.run([id], (resSong, errSong) => {
-                resolve(1);
-            });
-        });
-    });
-}
-function removeSong(id) {
-    return new Promise((resolve, reject) => {
-        let statement = db.prepare("DELETE FROM song WHERE id = ?");
-        statement.run([id], (res, err) => {
-            resolve(1);
-        });
-    });
-}
 function convertRowToPlaylist(row) {
     var p = new playlist_1.Playlist();
     p.id = row.id;
     p.name = row.name;
-    p.songs = row.songs;
+    p.items = row.items;
+    p.songsFolder = row.songs_folder;
     p.created = row.created;
-    p.lastSongPlayedId = row.lastSongPlayedId;
-    p.songs = [];
-    p.songCount = row.songCount;
+    p.lastItemPlayedId = row.lastItemPlayedId;
+    // p.songCount = row.songCount;
     return p;
+}
+function convertRowToPlaylistItem(row) {
+    // console.log(row);
+    var i = new playlistItem_1.PlaylistItem();
+    i.id = row.p_id;
+    i.name = row.s_name;
+    i.playlistItemGroupId = row.p_playlistItemGroupId;
+    i.playlistId = row.p_playlistId;
+    i.orderIndex = row.p_orderIndex;
+    i.song = new song_1.Song();
+    i.song.id = row.s_id;
+    i.song.name = row.s_name;
+    i.song.path = row.s_path;
+    i.song.duration = row.s_duration;
+    i.playlistItemGroup = new playlistItemGroup_1.PlaylistItemGroup();
+    i.playlistItemGroup.id = row.pig_id;
+    i.playlistItemGroup.name = row.pig_name;
+    i.playlistItemGroup.orderIndex = row.pig_orderIndex;
+    return i;
 }
 function convertRowToSong(row) {
     var s = new song_1.Song();

@@ -32,14 +32,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.error = false;
-    this.selectedSongSubscripion = this.playlistService.selectedSong.subscribe(song => {
-      if (song) {
+    this.selectedSongSubscripion = this.playlistService.selectedItem.subscribe(item => {
+      if (item) {
         this.error = false;
-        this.song = song;
+        this.song = item.song;
         navigator.mediaSession.metadata = new MediaMetadata({
           title: this.song.name
         })
-        this.song.durationInMillis = song.duration * 1000;
+        this.song.durationInMillis = item.song.duration * 1000;
         this.running = false;
         this.paused = false;
         this.cd.detectChanges();
@@ -145,7 +145,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
           this.counter.start(!this.paused);
           this.paused = false;
         } else {
-          this.audioService.playAudio(this.song).then(() => {
+          this.playlistService.saveLastItem();
+          this.audioService.playAudio(this.song, this.playlistService.getSelectedPlaylist().songsFolder).then(() => {
             this.running = true;
             setTimeout(() => {
               this.counter.start(!this.paused);
