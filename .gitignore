@@ -40,6 +40,8 @@ npm-debug.log
 testem.log
 /typings
 
+/music
+
 # e2e
 /e2e/*.js
 !/e2e/protractor.conf.js

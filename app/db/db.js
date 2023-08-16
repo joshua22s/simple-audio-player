@@ -8,8 +8,11 @@ const fs_1 = require("fs");
 const song_1 = require("../models/song");
 const playlist_1 = require("../models/playlist");
 const path = require("path");
+const fs = require("fs");
 const playlistItem_1 = require("../models/playlistItem");
 const playlistItemGroup_1 = require("../models/playlistItemGroup");
+const firstRun = require("electron-first-run");
+const electron_root_path_1 = require("electron-root-path");
 var mainWindow;
 var mainApp;
 var dbPath;
@@ -19,9 +22,34 @@ function dbSetup(window, app) {
     mainApp = app;
     dbPath = path.join(mainApp.getPath("userData"), 'db.sqlite');
     db = new sqlite3_1.Database(dbPath);
-    db.exec((0, fs_1.readFileSync)(`${__dirname}/script.sql`).toString());
+    if (firstRun()) {
+        setMusicPathInScript().then(() => {
+            db.exec((0, fs_1.readFileSync)(`${__dirname}/script.sql`).toString());
+        }).catch(err => {
+            console.log(err);
+        });
+    }
 }
 exports.dbSetup = dbSetup;
+function setMusicPathInScript() {
+    return new Promise((resolve, reject) => {
+        fs.readFile(`${__dirname}/script.sql`, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            var script = data.replace("{{musicpath}}", `${electron_root_path_1.rootPath}\\pieter-music`);
+            fs.writeFile(`${__dirname}/script.sql`, script, 'utf8', (err) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve("");
+                }
+            });
+        });
+    });
+}
 electron_1.ipcMain.on("config-get", (event, args) => {
     db.get('SELECT * FROM app_config LIMIT 1', (err, row) => {
         mainWindow.webContents.send("config-get-send", row);

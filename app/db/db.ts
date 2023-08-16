@@ -1,12 +1,17 @@
-import { ipcMain } from 'electron';
+import { dialog, ipcMain } from 'electron';
 import { Database, Statement } from 'sqlite3';
 import { v4 as uuid } from 'uuid';
 import { readFileSync } from 'fs';
 import { Song } from '../models/song';
 import { Playlist } from '../models/playlist';
 import * as path from 'path';
+import * as fs from 'fs';
 import { PlaylistItem } from '../models/playlistItem';
 import { PlaylistItemGroup } from '../models/playlistItemGroup';
+import * as firstRun from 'electron-first-run';
+import { rootPath } from 'electron-root-path';
+import { Dialog } from 'electron'; 
+
 var mainWindow;
 var mainApp;
 var dbPath;
@@ -17,7 +22,32 @@ export function dbSetup(window: any, app: any) {
     mainApp = app;
     dbPath = path.join(mainApp.getPath("userData"), 'db.sqlite');
     db = new Database(dbPath);
-    db.exec(readFileSync(`${__dirname}/script.sql`).toString());
+    if (firstRun()) {
+        setMusicPathInScript().then(() => {
+            db.exec(readFileSync(`${__dirname}/script.sql`).toString());
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+}
+
+function setMusicPathInScript(): Promise<any> {
+    return new Promise((resolve, reject) => {
+        fs.readFile(`${__dirname}/script.sql`, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            var script = data.replace("{{musicpath}}", `${rootPath}\\pieter-music`);
+            fs.writeFile(`${__dirname}/script.sql`, script, 'utf8', (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve("");
+                }
+            })
+        })
+    })
 }
 
 ipcMain.on("config-get", (event, args) => {
