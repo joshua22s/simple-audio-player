@@ -113,12 +113,14 @@ export class PlaylistComponent implements OnInit, OnDestroy {
     }
   }
 
-  selectItem(item: PlaylistItem) {
-    this.playlistService.triggerSongAction(PlayerAction.STOP);
-    this.audioService.pauseAudio();
-    this.playlistService.setSelectedItem(item);
-    this.playlistService.currentSongPosition = 0;
-    this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
+  selectItem(event: any, item: PlaylistItem) {
+    if (event.ctrlKey) {
+      this.playlistService.triggerSongAction(PlayerAction.STOP);
+      this.audioService.pauseAudio();
+      this.playlistService.setSelectedItem(item);
+      this.playlistService.currentSongPosition = 0;
+      this.playlistService.triggerSongAction(PlayerAction.EXTERNAL_PLAY);
+    }
   }
 
   onRightClick(trigger, song: Song) {
